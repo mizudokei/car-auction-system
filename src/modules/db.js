@@ -15,11 +15,12 @@ const connection = mysql.createConnection(dbConfig);
 // データベース接続
 const connectDB = () => {
 	connection.connect((err) => {
-    if (err) {
-		console.error('データベース接続エラー:', err.stack);
-		return;
-    }
-    console.log('データベース接続');
+		if (err) {
+			console.error('❌【データベース接続エラー】\n', err.stack);
+			return;
+		}
+		console.log('データベース接続');
+		return connection;
 	});
 };
 
@@ -27,7 +28,7 @@ const connectDB = () => {
 const disconnectDB = () => {
 	connection.end((err) => {
 		if (err) {
-			console.error('データベース切断エラー：', err.stack);
+			console.error('❌【データベース切断エラー】\n', err.stack);
 			return;
 		}
 		console.log('データベース切断');	
