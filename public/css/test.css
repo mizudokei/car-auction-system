@@ -1,0 +1,14 @@
+/* 車両管理画面用スタイル */
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f9f9f9;
+}
+
+h1, h2 {
+    font-weight: bold;
+    color: #333;
+}
+
+.vehicle-list table {
+    border: 1px solid #ddd;
+}
