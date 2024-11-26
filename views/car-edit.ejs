@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= title %></title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css">
+</head>
+<body>
+    <%- include('partials/admin-header') %>
+    <main class="container my-5">
+        <!-- 画像表示部分 -->
+        <div class="mb-3 text-center">
+            <% if (car.car_image) { %>
+                <img src="<%= car.car_image %>" alt="車両画像" class="img-fluid" style="max-width: 300px; height: auto;">
+            <% } else { %>
+                <p>画像が登録されていません。</p>
+            <% } %>
+        </div>
+        <!-- 編集フォーム -->
+        <form action="/updateCar/<%= car.car_id %>" method="POST">
+            <div class="mb-3">
+                <label for="car_image_upload" class="form-label">車両画像</label>
+                <input type="file" class="form-control" id="car_image_upload" name="car_image">
+            </div>
+            <div class="mb-3">
+                <label for="car_type" class="form-label">車種</label>
+                <input type="text" class="form-control" id="car_type" name="car_type" value="<%= car.car_type %>" required>
+            </div>
+            <div class="mb-3">
+                <label for="car_manufacturer" class="form-label">メーカー名</label>
+                <input type="text" class="form-control" id="car_manufacturer" name="car_manufacturer" value="<%= car.car_manufacturer %>" required>
+            </div>
+            <div class="mb-3">
+                <label for="car_year" class="form-label">年式</label>
+                <input type="number" class="form-control" id="car_year" name="car_year" value="<%= car.car_year %>" required>
+            </div>
+            <div class="mb-3">
+                <label for="car_mileage" class="form-label">走行距離</label>
+                <input type="text" class="form-control" id="car_mileage" name="car_mileage" value="<%= car.car_mileage %>" required>
+            </div>
+            <div class="mb-3">
+                <label for="car_color" class="form-label">車体カラー</label>
+                <input type="text" class="form-control" id="car_color" name="car_color" value="<%= car.car_color %>" required>
+            </div>
+            
+
+            <button type="submit" class="btn btn-primary">更新</button>
+        </form>
+    </main>
+    <%- include('partials/admin-footer') %>
+</body>
+</html>
