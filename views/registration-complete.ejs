@@ -1,0 +1,22 @@
+<!-- registration-complete.ejs -->
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>登録完了</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+    <%- include('partials/header') %>
+    <main>
+        <h2>登録完了</h2>
+        <p>オークションの登録が完了しました。</p>
+        <div class="mt-3">
+            <a href="/auctionManagement" class="btn btn-primary">戻る</a>
+            <a href="/itemRegistration" class="btn btn-secondary">出品登録画面へ</a>
+        </div>
+    </main>
+    <%- include('partials/footer') %>
+</body>
+</html>

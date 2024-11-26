@@ -2,6 +2,7 @@ const express = require('express');
 const app = express();
 const db = require('./modules/db');
 const carQueries = require('./modules/carQueries');
+const auctionQueries = require('./modules/auctionQueries');
 const path = require('path');
 const multer = require('multer');
 const bodyParser = require('body-parser');
@@ -47,6 +48,16 @@ app.get('/editCar/:car_id', (req, res) => {
     });
 });
 
+// オークション管理画面へのルート
+app.get('/auctionManagement', (req, res) => 
+    { res.render('auction-management', { title: 'オークション管理画面' }); 
+}); 
+
+// 登録完了画面
+app.get('/registrationComplete', (req, res) => 
+    { res.render('registration-complete'); }
+);
+
 // 車両情報更新処理
 app.post('/updateCar/:car_id', upload.single('car_image'), (req, res) => {
     const carId = req.params.car_id;
@@ -75,6 +86,19 @@ app.post('/updateCar/:car_id', upload.single('car_image'), (req, res) => {
     });
 });
 
+// オークション作成処理 
+app.post('/createAuction', (req, res) => 
+    { const { start_datetime, end_datetime, auction_status, employee_id } = req.body; 
+auctionQueries.createAuction({ 
+    start_datetime, end_datetime, 
+    auction_status, employee_id 
+}, 
+(err) => 
+    { if (err) { console.error('オークション作成エラー:', err); 
+        res.status(500).send('オークションの作成に失敗しました'); 
+    } else { res.redirect('/registrationComplete');
+         // 登録完了画面にリダイレクト 
+         } }); });
 
 app.listen(3000, () => {
     console.log('Server is running on http://localhost:3000');

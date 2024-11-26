@@ -1,0 +1,42 @@
+<!-- auction-management.ejs -->
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= title %></title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+    <%- include('partials/header') %>
+    <main>
+        <h2>オークション開催</h2>
+        <form action="/createAuction" method="POST">
+            <div>
+                <label for="start_datetime">開始日時:</label>
+                <input type="datetime-local" id="start_datetime" name="start_datetime" required>
+            </div>
+            <div>
+                <label for="end_datetime">終了日時:</label>
+                <input type="datetime-local" id="end_datetime" name="end_datetime" required>
+            </div>
+            <div>
+                <label for="auction_status">オークションステータス:</label>
+                <select id="auction_status" name="auction_status" required>
+                    <option value="開催中">開催中</option>
+                    <option value="終了">終了</option>
+                    <option value="準備中">準備中</option>
+                </select>
+            </div>
+            <div>
+                <label for="employee_id">担当者ID:</label>
+                <input type="number" id="employee_id" name="employee_id" required>
+            </div>
+            <div>
+                <button type="submit">登録</button>
+            </div>
+        </form>
+    </main>
+    <%- include('partials/footer') %>
+</body>
+</html>
