@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="html">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= title %></title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/css/car-management.css">
+</head>
+<body>
+    <%- include('partials/admin-header') %>
+    <main class="container my-5">
+        <h1 class="text-center mb-4">車両登録</h1>
+        <form action="/carRegistration" method="POST" enctype="multipart/form-data">
+            <div class="mb-3">
+                <label for="car_type" class="form-label">車種</label>
+                <input type="text" class="form-control" id="car_type" name="car_type" required>
+            </div>
+            <div class="mb-3">
+                <label for="car_manufacturer" class="form-label">メーカー名</label>
+                <input type="text" class="form-control" id="car_manufacturer" name="car_manufacturer" required>
+            </div>
+            <div class="mb-3">
+                <label for="car_year" class="form-label">年式</label>
+                <input type="number" class="form-control" id="car_year" name="car_year" required>
+            </div>
+            <div class="mb-3">
+                <label for="car_mileage" class="form-label">走行距離</label>
+                <input type="text" class="form-control" id="car_mileage" name="car_mileage" required>
+            </div>
+            <div class="mb-3">
+                <label for="car_color" class="form-label">車体カラー</label>
+                <input type="text" class="form-control" id="car_color" name="car_color" required>
+            </div>
+            <div class="mb-3">
+                <label for="car_image" class="form-label">車両画像</label>
+                <input type="file" class="form-control" id="car_image" name="car_image">
+            </div>
+            <button type="submit" class="btn btn-primary">登録</button>
+        </form>
+    </main>
+    <%- include('partials/admin-footer') %>
+</body>
+</html>

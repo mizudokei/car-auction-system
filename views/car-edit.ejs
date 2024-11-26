@@ -18,7 +18,7 @@
             <% } %>
         </div>
         <!-- 編集フォーム -->
-        <form action="/updateCar/<%= car.car_id %>" method="POST">
+        <form action="/updateCar/<%= car.car_id %>" method="POST" enctype="multipart/form-data">
             <div class="mb-3">
                 <label for="car_image_upload" class="form-label">車両画像</label>
                 <input type="file" class="form-control" id="car_image_upload" name="car_image">
