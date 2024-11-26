@@ -1,17 +1,24 @@
 const mysql = require('mysql2');
 const db = require('./db');
 
-// 車両情報を全件取得するメソッド
-const getAllCars = (callback) => {
+// 車両情報を全件あるいは検索条件に基づいて取得するメソッド
+const getCars = (searchTerm, callback) => {
     const connection = db.connectDB();
-    const sql = 'SELECT * FROM car_tbl'
-    connection.query(sql, (err, results) => {
+    let sql = 'SELECT * FROM car_tbl';
+    let params = [];
+
+    if (searchTerm) {
+        sql += ' WHERE car_type LIKE ?';
+        params.push(`%${searchTerm}%`);
+    }
+
+    connection.query(sql, params, (err, results) => {
         if (err) {
-            console.error("✅ クエリ実行エラー：\n", err);
+            console.error('クエリ実行エラー：', err);
             callback(err, null);
-            return;
+        } else {
+            callback(null, results);
         }
-        callback(null, results);
     });
 
     db.disconnectDB(connection);
@@ -21,11 +28,48 @@ const getAllCars = (callback) => {
 const getCarById = (car_id, callback) => {
     const connection = db.connectDB();
     const sql = 'SELECT * FROM car_tbl WHERE car_id = ?';
+
     connection.query(sql, [car_id], (err, results) => {
         if (err) {
+            console.error('クエリ実行エラー：', err);
             callback(err, null);
         } else {
-            callback(null, results[0]);  // 1件の結果を返す
+            callback(null, results[0]); // 1件の結果を返す
+        }
+    });
+
+    db.disconnectDB(connection);
+};
+
+// 車両情報を登録するメソッド
+const addCar = (carData, callback) => {
+    const connection = db.connectDB();
+    const {
+        car_type,
+        car_manufacturer,
+        car_year,
+        car_mileage,
+        car_color,
+        car_image
+    } = carData;
+
+    const sql = 'INSERT INTO car_tbl (car_type, car_manufacturer, car_year, car_mileage, car_color, car_image, car_status) VALUES (?, ?, ?, ?, ?, ?, ?)';
+    const params = [
+        car_type,
+        car_manufacturer,
+        car_year,
+        car_mileage,
+        car_color,
+        car_image || null, // 画像がない場合はnull
+        '在庫あり' // デフォルトのステータス
+    ];
+
+    connection.query(sql, params, (err, results) => {
+        if (err) {
+            console.error('クエリ実行エラー：', err);
+            callback(err, null);
+        } else {
+            callback(null, results);
         }
     });
 
@@ -44,7 +88,6 @@ const updateCarById = (car_id, carData, callback) => {
         car_image
     } = carData;
 
-    // 画像がアップロードされていない場合は現在の画像を維持
     const sql = car_image
         ? 'UPDATE car_tbl SET car_type = ?, car_manufacturer = ?, car_year = ?, car_mileage = ?, car_color = ?, car_image = ? WHERE car_id = ?'
         : 'UPDATE car_tbl SET car_type = ?, car_manufacturer = ?, car_year = ?, car_mileage = ?, car_color = ? WHERE car_id = ?';
@@ -55,6 +98,24 @@ const updateCarById = (car_id, carData, callback) => {
 
     connection.query(sql, params, (err, results) => {
         if (err) {
+            console.error('クエリ実行エラー：', err);
+            callback(err, null);
+        } else {
+            callback(null, results);
+        }
+    });
+
+    db.disconnectDB(connection);
+};
+
+// 車両情報をIDに基づいて削除するメソッド
+const deleteCarById = (car_id, callback) => {
+    const connection = db.connectDB();
+    const sql = 'DELETE FROM car_tbl WHERE car_id = ?';
+
+    connection.query(sql, [car_id], (err, results) => {
+        if (err) {
+            console.error('クエリ実行エラー：', err);
             callback(err, null);
         } else {
             callback(null, results);
@@ -65,7 +126,9 @@ const updateCarById = (car_id, carData, callback) => {
 };
 
 module.exports = {
-    getAllCars,
+    getCars,
     getCarById,
-    updateCarById
+    addCar,
+    updateCarById,
+    deleteCarById
 };
