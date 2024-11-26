@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="html">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= title %></title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/css/car-management.css">
+</head>
+<body>
+    <%- include('partials/admin-header') %>
+    <main class="container my-5">
+        <section class="car-list mb-5">
+            <h2 class="text-center">車両一覧</h2>
+            <table class="table table-striped mt-4">
+                <thead>
+                    <tr>
+                        <th>車両ID</th>
+                        <th>車両画像</th>
+                        <th>車両名</th>
+                        <th>年式</th>
+                        <th>走行距離</th>
+                        <th>車体カラー</th>
+                        <th>状態</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <% if (cars.length === 0) { %>
+                        <tr>
+                            <td colspan="7" class="text-center">車両データがありません</td>
+                        </tr>
+                    <% } else { %>
+                        <% cars.forEach(car => { %>
+                            <tr>
+                                <td><%= car.car_id %></td>
+                                <td class="text-center">
+                                    <% if (car.car_image) { %>
+                                        <img src="<%= car.car_image %>" alt="車両画像" class="img-thumbnail" style="max-width: 100px; height: auto;">
+                                    <% } else { %>
+                                        <p>画像なし</p>
+                                    <% } %>
+                                </td>
+                                <td><%= car.car_type %></td>
+                                <td><%= car.car_year %></td>
+                                <td><%= car.car_mileage %></td>
+                                <td><%= car.car_color %></td>
+                                <td><%= car.car_status %></td>
+                                <td>
+                                    <button class="btn btn-sm btn-primary me-2"><a href="/editCar/<%= car.car_id %>">編集</a></button>
+                                    <button class="btn btn-sm btn-danger">削除</button>
+                                </td>
+                            </tr>
+                        <% }) %>
+                    <% } %>
+                </tbody>
+            </table>
+        </section>
+    </main>
+    <%- include('partials/admin-footer') %> 
+</body>
+</html>
