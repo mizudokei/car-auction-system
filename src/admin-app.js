@@ -1,8 +1,10 @@
 const express = require('express');
+const router = express.Router();
 const app = express();
 const db = require('./modules/db');
 const carQueries = require('./modules/carQueries');
 const auctionQueries = require('./modules/auctionQueries');
+const listingService = require('./modules/listingService');
 const path = require('path');
 const multer = require('multer');
 const bodyParser = require('body-parser');
@@ -98,6 +100,20 @@ app.get('/registrationComplete', (req, res) =>
     { res.render('registration-complete'); }
 );
 
+// 出品登録画面の表示
+app.get('/car-listing', async (req, res) => {
+    try {
+        const events = await listingService.getActiveAuctionEvents();
+        // console.log('取得したイベント:', events); // ログ出力
+        const cars = await listingService.getAvailableCars();
+        res.render('car-listing', { title: '出品登録ページ', events, cars });
+    } catch (err) {
+        console.error('エラーが発生しました:', err.message);
+        res.status(500).send('エラーが発生しました');
+    }
+});
+
+
 // 車両情報更新処理
 app.post('/updateCar/:car_id', upload.single('car_image'), (req, res) => {
     const carId = req.params.car_id;
@@ -158,6 +174,40 @@ auctionQueries.createAuction({
 app.listen(3000, () => {
     console.log('Server is running on http://localhost:3000');
 });
+
+app.post('/car-listing/register', async (req, res) => {
+    try {
+        const { auction_id, selectedCars } = req.body;
+
+        console.log('Received auction_id:', auction_id);
+        console.log('Received selectedCars:', selectedCars);
+
+        // `selectedCars`が存在しない場合、エラーを返す
+        if (!selectedCars || selectedCars.length === 0) {
+            return res.status(400).send('選択された車両がありません');
+        }
+
+        // 配列形式に強制変換 (チェックボックスが1つだけ選択されている場合は文字列で渡されることがある)
+        const carIds = Array.isArray(selectedCars) ? selectedCars : [selectedCars];
+
+        // 各車両の開始価格を取得
+        const formData = { selectedCars: carIds };
+        carIds.forEach(carId => {
+            formData[`startingPrice_${carId}`] = req.body[`startingPrice_${carId}`];
+        });
+
+        console.log('Form data:', formData); // デバッグ用ログ
+
+        await listingService.registerListings(auction_id, formData);
+
+        res.redirect('/car-listing');
+    } catch (err) {
+        console.error('エラーが発生しました:', err.message);
+        res.status(500).send('エラーが発生しました');
+    }
+});
+
+
 
 // アプリケーション終了時にデータベース接続を切断
 process.on('SIGINT', () => {
