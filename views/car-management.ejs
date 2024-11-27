@@ -4,28 +4,23 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><%= title %></title>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css">
     <link rel="stylesheet" href="/css/car-management.css">
     <script src="/js/confirmDelete.js"></script>
 </head>
 <body>
     <%- include('partials/admin-header') %>
-    <main class="container my-5">
-        
-        <!-- 検索フォーム -->
-        <form action="/carManagement" method="GET" class="mb-4">
-            <div class="row">
-                <div class="col-md-6">
-                    <input type="text" class="form-control" name="search" placeholder="車種名で検索">
-                </div>
-                <div class="col-md-6">
-                    <button type="submit" class="btn btn-primary">検索</button>
-                </div>
-            </div>
-        </form>
+    <main class="container">
+        <!-- 検索フォームと出品登録ボタン -->
+        <div class="search-and-register">
+            <form action="/carManagement" method="GET" class="search-form">
+                <input type="text" class="search-input" name="search" placeholder="車種名で検索">
+                <button type="submit" class="search-button">検索</button>
+            </form>
+            <a href="/carRegistration" class="register-button">車両を登録する</a>
+        </div>
 
-        <section class="car-list mb-5">
-            <table class="table table-striped mt-4">
+        <section class="car-list">
+            <table class="car-table">
                 <thead>
                     <tr>
                         <th>車両ID</th>
@@ -36,21 +31,21 @@
                         <th>走行距離</th>
                         <th>車体カラー</th>
                         <th>状態</th>
-                        <th></th>
+                        <th>操作</th>
                     </tr>
                 </thead>
                 <tbody>
                     <% if (cars.length === 0) { %>
                         <tr>
-                            <td colspan="7" class="text-center">車両データがありません</td>
+                            <td colspan="9" class="no-data">車両データがありません</td>
                         </tr>
                     <% } else { %>
                         <% cars.forEach(car => { %>
                             <tr>
                                 <td><%= car.car_id %></td>
-                                <td class="text-center">
+                                <td class="image-cell">
                                     <% if (car.car_image) { %>
-                                        <img src="<%= car.car_image %>" alt="車両画像" class="img-thumbnail" style="max-width: 100px; height: auto;">
+                                        <img src="<%= car.car_image %>" alt="車両画像" class="car-image">
                                     <% } else { %>
                                         <p>画像なし</p>
                                     <% } %>
@@ -62,10 +57,12 @@
                                 <td><%= car.car_color %></td>
                                 <td><%= car.car_status %></td>
                                 <td>
-                                    <a href="/editCar/<%= car.car_id %>"><button class="btn btn-sm btn-primary me-2">編集</button></a>
-                                    <form action="/deleteCar/<%= car.car_id %>" method="POST" onsubmit="return confirmDelete(event, '<%= car.car_id %>')">
-                                        <button type="submit" class="btn btn-sm btn-danger me-2">削除</button>
-                                    </form>
+                                    <div class="action-buttons">
+                                        <a href="/editCar/<%= car.car_id %>" class="edit-button">編集</a>
+                                        <form action="/deleteCar/<%= car.car_id %>" method="POST" onsubmit="return confirmDelete(event, '<%= car.car_id %>')">
+                                            <button type="submit" class="delete-button">削除</button>
+                                        </form>
+                                    </div>
                                 </td>
                             </tr>
                         <% }) %>
@@ -73,10 +70,6 @@
                 </tbody>
             </table>
         </section>
-
-        <div class="d-flex justify-content-between align-items-center mb-4">
-            <a href="/carRegistration" class="btn btn-success">車両を登録する</a>
-        </div>
     </main>
     <%- include('partials/admin-footer') %> 
 </body>
