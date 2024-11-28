@@ -104,15 +104,30 @@ app.get('/registrationComplete', (req, res) =>
 app.get('/car-listing', async (req, res) => {
     try {
         const events = await listingService.getActiveAuctionEvents();
-        // console.log('取得したイベント:', events); // ログ出力
         const cars = await listingService.getAvailableCars();
-        res.render('car-listing', { title: '出品登録ページ', events, cars });
+        const listedCars = await listingService.getListedCars(); // 出品登録済みの車両を取得
+        res.render('car-listing', { title: '出品登録ページ', events, cars, listedCars });
     } catch (err) {
         console.error('エラーが発生しました:', err.message);
         res.status(500).send('エラーが発生しました');
     }
 });
 
+// 出品停止処理
+app.post('/car-listing/stop', async (req, res) => {
+    try {
+        const { stopCars } = req.body;
+        if (!stopCars || stopCars.length === 0) {
+            return res.status(400).send('選択された車両がありません');
+        }
+        const carIds = Array.isArray(stopCars) ? stopCars : [stopCars];
+        await listingService.stopListings(carIds);
+        res.redirect('/car-listing');
+    } catch (err) {
+        console.error('エラーが発生しました:', err.message);
+        res.status(500).send('エラーが発生しました');
+    }
+});
 
 // 車両情報更新処理
 app.post('/updateCar/:car_id', upload.single('car_image'), (req, res) => {
@@ -169,7 +184,7 @@ auctionQueries.createAuction({
         res.status(500).send('オークションの作成に失敗しました'); 
     } else { res.redirect('/registrationComplete');
          // 登録完了画面にリダイレクト 
-         } }); });
+    } }); });
 
 app.listen(3000, () => {
     console.log('Server is running on http://localhost:3000');
