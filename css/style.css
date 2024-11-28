@@ -1,0 +1,37 @@
+.auction-class {
+    border: 1px solid #000000;
+    padding: 15px;
+    margin: 10px 0;
+    border-radius: 5px;
+    background-color: #000000;
+}
+
+.car-info {
+    margin-bottom: 10px;
+    font-size: 14px;
+    background-color: #fff;
+    padding: 10px;
+    border-radius: 5px;
+    box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+}
+
+.auction-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+}
+
+.auction-class {
+    width: 45%;
+    box-sizing: border-box;
+}
+
+@media (max-width: 768px) {
+    .auction-class {
+        width: 100%;
+    }
+}
+body {
+    background-color: #000000; /* 背景色を黒に設定 */
+    color: #ffffff; /* テキスト色を白に設定（必要に応じて） */
+}

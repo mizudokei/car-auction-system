@@ -1,6 +1,7 @@
 const express = require('express');
 const app = express();
 const db = require('./modules/db')
+const auctionService = require('./modules/auctionService')
 const path = require('path');
 const mysql = require('mysql');
 const { title } = require('process');
@@ -13,8 +14,13 @@ app.use('/resources', express.static(path.join(__dirname, '../resources')));
 app.set('view engine', 'ejs');
 
 app.get('/', (req, res) => {
-    db.connectDB();
-    res.render('index', { title: 'トップページ' });
+    auctionService.getAuctionData((err, data) => {
+        if (err) {
+            console.error("オークションデータの取得エラー:", err);
+            return res.status(500).send("データの取得に失敗しました");
+        }
+        res.render('index', { title: 'トップページ', auctionData: data });
+    });
 });
 
 app.listen(3000, () => {

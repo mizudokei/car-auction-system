@@ -1,19 +1,59 @@
-<!-- index.ejs -->
 <!DOCTYPE html>
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdn.tailwindcss.com"></script>
     <title><%= title %></title>
-    <link rel="stylesheet" href="/css/style.css">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css">
 </head>
-<body>
-    <%- include('partials/header') %>
-    <main>
-        <h2>トップページ</h2>
-        <p>サイトのメインコンテンツです。</p>
-    </main>
-    <%- include('partials/footer') %>
+<body class="bg-gray-100">
+    <h1 class="text-3xl font-bold text-center py-4 flex-wrap"><%= title %></h1>
+
+    <div class="container mx-auto px-4">
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            <% auctionData.forEach(auction => { %>
+                <div class="bg-white rounded-lg shadow-lg p-6">
+                    <!-- <h2 class="text-xl font-semibold mb-4">オークションID: <%= auction.auction_id %></h2> -->
+                    <p class="text-gray-600 mb-2">開始日時: <%= auction.start_datetime %></p>
+                    <p class="text-gray-600 mb-4">終了日時: <%= auction.end_datetime %></p>
+
+                    <% if (auction.cars && auction.cars.length > 0) { %>
+                        <div class="space-y-4">
+                            <% auction.cars.forEach(car => { %>
+                                <div class="border-b pb-4">
+                                    <% if (car.car_image) { %>
+                                        <div class="flex justify-center mb-4">
+                                            <img src="<%= car.car_image %>" alt="<%= car.car_type %>" class="w-48 h-48 object-cover rounded-lg">
+                                        </div>
+                                    <% } else { %>
+                                        <div class="w-48 h-48 bg-gray-300 flex items-center justify-center rounded-lg mb-4">
+                                            <p class="text-gray-500 text-sm">画像なし</p>
+                                        </div>
+                                    <% } %>
+                                    <div class="flex flex-wrap">
+                                        <!-- <p class="px-4">車ID: <%= car.listing_id %></p> -->
+                                        <p class="px-1">車種: <%= car.car_type %></p>
+                                        <p class="px-1">メーカー: <%= car.car_manufacturer %></p>
+                                        <p class="px-1">価格: <%= car.current_price %>円</p>
+                                    </div>
+                                </div>
+                            <% }); %>
+                        </div>
+                    <% } else { %>
+                        <p class="text-red-500">車情報はありません</p>
+                    <% } %>
+                    <form action="" class="text-center">
+                        <button class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded shadow-md transition duration-300">
+                            入札
+                        </button>
+                    </form>
+                </div>
+            <% }); %>
+        </div>
+
+        <% if (auctionData.length === 0) { %>
+            <p class="text-center text-lg text-gray-700">現在、車情報が登録されていないオークションはありません。</p>
+        <% } %>
+    </div>
 </body>
 </html>
