@@ -6,6 +6,7 @@
     <title><%= title %></title>
     <link rel="stylesheet" href="/css/car-registration.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css">
+    <script src="/js/imagePreview.js"></script>
 </head>
 <body>
     <%- include('partials/admin-header') %>
@@ -18,6 +19,7 @@
                     <div class="form-group">
                         <label for="car_image_upload">車両画像</label>
                         <input type="file" id="car_image_upload" name="car_image" class="form-input">
+                        <img src="" alt="車両画像プレビュー" class="car-image-preview" style="max-width: 100%; height: auto; margin-top: 10px;">
                     </div>
 
                     <!-- 車種 -->
