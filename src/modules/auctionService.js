@@ -45,7 +45,7 @@ const getAuctionData = (callback) => {
         // console.log("取得したオークションデータ:", formattedAuctions);
 
         const carQuery = `
-            SELECT l.listing_id, c.car_type, c.car_manufacturer, l.current_price, l.auction_id, c.car_image, c.car_year, c.car_mileage, c.car_color
+            SELECT l.listing_id, c.car_id, c.car_type, c.car_manufacturer, l.current_price, l.auction_id, c.car_image, c.car_year, c.car_mileage, c.car_color
             FROM listing_tbl l
             JOIN car_tbl c ON l.car_id = c.car_id
             WHERE l.auction_id IN (?);

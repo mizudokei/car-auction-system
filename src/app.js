@@ -1,7 +1,8 @@
 const express = require('express');
 const app = express();
-const db = require('./modules/db')
-const auctionService = require('./modules/auctionService')
+const db = require('./modules/db');
+const auctionService = require('./modules/auctionService');
+const bidQueries = require('./modules/bidQueries');
 const path = require('path');
 const mysql = require('mysql');
 const { title } = require('process');
@@ -22,10 +23,51 @@ app.get('/', (req, res) => {
         res.render('index', { title: 'トップページ', auctionData: data });
     });
 });
+// 入札画面
+app.get('/bid', (req, res) => {
+    const auctionId = req.query.auction_id;
+    const carId = req.query.car_id;
+    const auctionend = req.query.end_datetime;
+    // console.log(req.query);
+    bidQueries.getCarDetails(carId, (err, carDetails) => {
+        if (err) {
+            console.error("車データの取得エラー:", err);
+            return res.status(500).send("データの取得に失敗しました");
+        }
 
-app.get('/bid', (req, res) => 
-    { res.render('bid'); }
-);
+        bidQueries.getCurrentPrice(auctionId, (err, currentPrice) => {
+            if (err) {
+                console.error("車価格の取得エラー:", err);
+                return res.status(500).send("データの取得に失敗しました");
+            }
+            res.render('bid', { auction_id: auctionId, car_id: carId, carDetails: carDetails, current_price: currentPrice, end_datetime: auctionend });
+        });
+    });
+});
+
+// 入札処理
+app.get('/submit-bid', (req, res) => {
+    const auctionId = req.query.auction_id;
+    const carId = req.query.car_id;
+    const bidAmount = req.query.bidAmount;
+
+    // リクエストパラメータの内容をログ出力
+    console.log('Query Params:', req.query);
+
+    if (!auctionId || !carId || !bidAmount) {
+        console.error("必要なデータが不足しています");
+        return res.status(400).send("必要なデータが不足しています");
+    }
+
+    bidQueries.updateCurrentPrice(auctionId, carId, bidAmount, (err) => {
+        if (err) {
+            console.error("入札額の更新エラー:", err);
+            return res.status(500).send("入札額の更新に失敗しました");
+        }
+        res.render('submit-bid', { auction_id: auctionId, car_id: carId, bidAmount: bidAmount });
+    });
+});
+
 
 app.listen(3000, () => {
     console.log('Server is running on http://localhost:3000');
