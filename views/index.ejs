@@ -19,8 +19,8 @@
                     <p class="text-gray-600 mb-4">終了日時: <%= auction.end_datetime %></p>
 
                     <% if (auction.cars && auction.cars.length > 0) { %>
-                        <div class="space-y-4 flex">
-                            <% auction.cars.forEach(car => { %>
+                        <% auction.cars.forEach(car => { %>
+                            <div class="space-y-4 flex">
                                 <div class="border-b px-4">
                                     <% if (car.car_image) { %>
                                         <div class="flex justify-center">
@@ -60,16 +60,19 @@
                                         </tr>
                                     </tbody>
                                 </table>
-                            <% }); %>
-                        </div>
+                            </div>
+                            <form action="/bid" method="get" class="text-center">
+                                <input type="hidden" name="car_id" value="<%= car.car_id %>">
+                                <input type="hidden" name="auction_id" value="<%= auction.auction_id %>">
+                                <input type="hidden" name="end_datetime" value="<%= auction.end_datetime %>">
+                                <button class="bg-blue-500 hover:bg-blue-600 text-white font-bold px-4 rounded shadow-md transition duration-300">
+                                    入札
+                                </button>
+                            </form>
+                        <% }); %>
                     <% } else { %>
                         <p class="text-red-500">車情報はありません</p>
                     <% } %>
-                    <form action="/bid" class="text-center">
-                        <button class="bg-blue-500 hover:bg-blue-600 text-white font-bold  px-4 rounded shadow-md transition duration-300">
-                            入札
-                        </button>
-                    </form>
                 </div>
             <% }); %>
         </div>
