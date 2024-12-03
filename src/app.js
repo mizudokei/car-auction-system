@@ -27,6 +27,7 @@ app.get('/', (req, res) => {
 app.get('/bid', (req, res) => {
     const auctionId = req.query.auction_id;
     const carId = req.query.car_id;
+    const listingId = req.query.listing_id;
     const auctionend = req.query.end_datetime;
 
     // end_datetime と今日の日付の差を計算
@@ -52,39 +53,81 @@ app.get('/bid', (req, res) => {
                 console.error("車価格の取得エラー:", err);
                 return res.status(500).send("データの取得に失敗しました");
             }
-            res.render('bid', { 
-                auction_id: auctionId, 
-                car_id: carId, 
-                carDetails: carDetails, 
-                current_price: currentPrice, 
-                end_datetime: auctionend, 
-                time_remaining: timeRemaining 
+            bidQueries.getBidDetails(auctionId, (err, bidDetails) => {
+                if (err) {
+                    console.error("入札履歴の取得エラー:", err);
+                    return res.status(500).send("データの取得に失敗しました");
+                }
+                res.render('bid', { 
+                    auction_id: auctionId, 
+                    car_id: carId, 
+                    listing_id: listingId, 
+                    carDetails: carDetails, 
+                    current_price: currentPrice, 
+                    end_datetime: auctionend, 
+                    time_remaining: timeRemaining,
+                    bid_details: bidDetails
+                });
             });
         });
     });
 });
 
-
 // 入札処理
 app.get('/submit-bid', (req, res) => {
     const auctionId = req.query.auction_id;
     const carId = req.query.car_id;
+    const listingId = req.query.listing_id;
     const bidAmount = req.query.bidAmount;
-
-    // リクエストパラメータの内容をログ出力
-    console.log('Query Params:', req.query);
+    const bidDatetime = new Date();
+    const userId = "1";
 
     if (!auctionId || !carId || !bidAmount) {
         console.error("必要なデータが不足しています");
         return res.status(400).send("必要なデータが不足しています");
     }
+    bidQueries.getCarDetails(carId, (err, carDetails) => {
+        if (err) {
+            console.error("車データの取得エラー:", err);
+            return res.status(500).send("データの取得に失敗しました");
+        }console.log(carDetails, bidAmount, auctionId, listingId);
+        res.render('submit-bid', { title: '入札確認画面', carDetails, bidAmount, auctionId, listingId });
+    });
+});
 
-    bidQueries.updateCurrentPrice(auctionId, carId, bidAmount, (err) => {
+app.get('/confirmbid', (req, res) => {
+    console.log(req.query);
+    const auctionId = req.query.auction_id;
+    const carId = req.query.car_id;
+    const listingId = req.query.listing_id;
+    const bidAmount = req.query.bidAmount;
+    const bidDatetime = new Date();
+    const userId = "1";
+    
+    if (!auctionId || !listingId || !bidAmount) {
+        console.error("必要なデータが不足しています");
+        return res.status(400).send("必要なデータが不足しています");
+    }
+
+    bidQueries.addbit(auctionId, listingId, userId, bidDatetime, bidAmount, (err) => {
         if (err) {
             console.error("入札額の更新エラー:", err);
             return res.status(500).send("入札額の更新に失敗しました");
         }
-        res.render('submit-bid', { auction_id: auctionId, car_id: carId, bidAmount: bidAmount });
+
+        // carDetailsを取得するための関数呼び出しを追加
+        bidQueries.getCarDetails(carId, (err, carDetails) => {
+            if (err) {
+                console.error("車データの取得エラー:", err);
+                return res.status(500).send("データの取得に失敗しました");
+            }
+            // 正しくcarDetailsをテンプレートに渡す
+            res.render('confirm-bid', { 
+                title: '入札確認画面', 
+                carDetails: carDetails, 
+                bidAmount: bidAmount 
+            });
+        });
     });
 });
 

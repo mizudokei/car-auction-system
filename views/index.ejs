@@ -63,6 +63,7 @@
                             </div>
                             <form action="/bid" method="get" class="text-center">
                                 <input type="hidden" name="car_id" value="<%= car.car_id %>">
+                                <input type="hidden" name="listing_id" value="<%= car.listing_id %>">
                                 <input type="hidden" name="auction_id" value="<%= auction.auction_id %>">
                                 <input type="hidden" name="end_datetime" value="<%= auction.end_datetime %>">
                                 <button class="bg-blue-500 hover:bg-blue-600 text-white font-bold px-4 rounded shadow-md transition duration-300">

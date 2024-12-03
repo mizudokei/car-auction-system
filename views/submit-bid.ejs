@@ -9,11 +9,16 @@
 <body class="bg-gray-100">
     <%- include('partials/admin-header') %>
     <main class="container mx-auto p-4">
-        <h2 class="text-xl font-semibold mb-4">入札完了</h2>
         <div class="bg-white p-4 rounded shadow">
             <p>入札額: <%= bidAmount %>円</p>
         </div>
-        <a href="/" class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded mt-4 inline-block">トップページに戻る</a>
+        <h2 class="text-xl font-semibold mb-4">以上でよろしいですか</h2>
+        <form action="/confirmbid" method="GET">
+            <input type="hidden" name="auction_id" value="<%= auctionId %>">
+            <input type="hidden" name="listing_id" value="<%= listingId %>">
+            <input type="hidden" name="bidAmount" value="<%= bidAmount %>">
+            <button type="submit" class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded mt-4 inline-block text-center">決定</button>
+        </form>
     </main>
     <%- include('partials/admin-footer') %>
 </body>
