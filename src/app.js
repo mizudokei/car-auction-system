@@ -7,6 +7,9 @@ const path = require('path');
 const mysql = require('mysql');
 const { title } = require('process');
 const { connect } = require('http2');
+const session = require('express-session');
+const bodyParser = require('body-parser');
+const authService = require('./modules/authService');
 
 // 静的ファイル
 app.set('views', path.join(__dirname, '../views'));
@@ -14,13 +17,23 @@ app.use(express.static(path.join(__dirname, '..', 'public')));
 app.use('/resources', express.static(path.join(__dirname, '../resources')));
 app.set('view engine', 'ejs');
 
+app.use(session({
+    secret: 'ihiw03_secret_key',
+    resave: false,
+    saveUninitialized: true,
+    cookie: { secure: false, maxAge: 3600000 }
+}));
+
+app.use(bodyParser.urlencoded({ extended: true }));
+app.use(bodyParser.json());
+
 app.get('/', (req, res) => {
-    auctionService.getAuctionData((err, data) => {
+    auctionService.getAuctionData((err, auctionData) => {
         if (err) {
             console.error("オークションデータの取得エラー:", err);
             return res.status(500).send("データの取得に失敗しました");
         }
-        res.render('index', { title: 'トップページ', auctionData: data });
+        res.render('index', { user: req.session.user, title: 'ホームページ', auctionData: auctionData });
     });
 });
 // 入札画面
@@ -53,6 +66,7 @@ app.get('/bid', (req, res) => {
                 return res.status(500).send("データの取得に失敗しました");
             }
             res.render('bid', { 
+                user: req.session.user,
                 auction_id: auctionId, 
                 car_id: carId, 
                 carDetails: carDetails, 
@@ -84,16 +98,37 @@ app.get('/submit-bid', (req, res) => {
             console.error("入札額の更新エラー:", err);
             return res.status(500).send("入札額の更新に失敗しました");
         }
-        res.render('submit-bid', { auction_id: auctionId, car_id: carId, bidAmount: bidAmount });
+        res.render('submit-bid', { user: req.session.user, auction_id: auctionId, car_id: carId, bidAmount: bidAmount });
     });
 });
 
+app.get('/login', (req, res) => {
+    res.render('login', { user: req.session.user, title: 'ログイン' });
+});
+
+app.post('/login-check', (req, res) => {
+    const { email, password } = req.body;
+
+    // ユーザー認証のロジックをここに追加
+    authService.authenticateUser(email, password, (err, user) => {
+        if (err) {
+            console.error("認証エラー:", err);
+            return res.status(500).send("ログインに失敗しました");
+        }
+        if (!user) {
+            return res.status(401).send("メールアドレスまたはパスワードが間違っています");
+        }
+        req.session.user = user; // ユーザー情報をセッションに保存
+        console.log("ログイン情報（セッション）の確認", req.session.user);
+        res.redirect('/');
+    });
+});
 
 app.listen(3000, () => {
     console.log('Server is running on http://localhost:3000');
 });
-// アプリケーション終了時にデータベース接続を切断
 process.on('SIGINT', () => {
     db.disconnectDB();
     process.exit();
 });
+
