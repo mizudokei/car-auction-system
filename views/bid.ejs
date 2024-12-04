@@ -88,7 +88,7 @@
                         </table>
                         <form action="/submit-bid" method="get" class="mt-4">
                             <div class="mb-4">
-                                <label for="bidAmount" class="block text-gray-700 mb-2">入札額:</label>
+                                <label for="bidAmount" class="block text-gray-700 mb-2">入札額</label>
                                 <div class="flex items-center justify-center space-x-2">
                                     <button type="button" onclick="decrementValue('bidAmount', 10000)" class="px-4 py-2 bg-gray-800 text-white rounded hover:bg-gray-900">-10000</button>
                                     <input type="number" id="bidAmount" name="bidAmount" class="w-full px-4 py-2 border rounded text-center" min="<%= current_price %>" value="<%= current_price %>" required>
@@ -97,6 +97,8 @@
                             </div>
                             <input type="hidden" name="auction_id" value="<%= auction_id %>">
                             <input type="hidden" name="car_id" value="<%= car_id %>">
+                            <input type="hidden" name="listing_id" value="<%= listing_id %>">
+                            <input type="hidden" name="end_datetime" value="<%= end_datetime %>">
                             <div class="flex items-center justify-center">
                                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" class="h-4 w-4"><path d="M464 256A208 208 0 1 1 48 256a208 208 0 1 1 416 0zM0 256a256 256 0 1 0 512 0A256 256 0 1 0 0 256zM232 120l0 136c0 8 4 15.5 10.7 20l96 64c11 7.4 25.9 4.4 33.3-6.7s4.4-25.9-6.7-33.3L280 243.2 280 120c0-13.3-10.7-24-24-24s-24 10.7-24 24z"/></svg>
                                 <p>残り時間:</p>
@@ -106,9 +108,24 @@
                         </form>
                     </div>
                 </div>
-            </div>
-            <% } %>
+                <% if (bid_details && bid_details.length > 0) { %>
+                    <table class="table-auto border border-collapse mx-auto text-center">
+                        <tr class="bg-gray-800 text-white">
+                            <th class="border px-4 py-2">入札日</th>
+                            <th class="border px-4 py-2">入札価格</th>
+                        </tr>
+                        <% bid_details.forEach(detail => { %>
+                        <tr>
+                            <td class="border px-4 py-2"><%= detail.bid_datetime %></td>
+                            <td class="border px-4 py-2"><%= detail.bid_amount %></td>
+                        </tr>
+                        <% }) %>
+                    </table>
+                <% } %>
+        </div>
+        <% } %>
         </main>
     <%- include('partials/footer') %>
 </body>
 </html>
+ 

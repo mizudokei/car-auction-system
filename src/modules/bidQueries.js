@@ -26,17 +26,88 @@ const getCurrentPrice = (auctionId, callback) => {
     });
 };
 
-const updateCurrentPrice = (auctionId, carId, bidAmount, callback) => {
+const getBidDetails = (auctionId, callback) => {
     const connection = db.connectDB();
-    const query = 'UPDATE listing_tbl SET current_price = ? WHERE auction_id = ?';
-
-    connection.query(query, [bidAmount, auctionId, carId], (err, results) => {
+    const query = `
+        SELECT bid_datetime, bid_amount 
+        FROM bid_tbl
+        WHERE auction_id = ?
+        ORDER BY bid_datetime DESC
+        LIMIT 10;
+    `;
+    
+    connection.query(query, [auctionId], (err, results) => {
         db.disconnectDB();
         if (err) {
             return callback(err);
         }
-        callback(null);
+
+        // 日付をフォーマットする
+        function formatDate(dateString) {
+            const date = new Date(dateString);
+        
+            // 日付部分のフォーマット
+            const year = date.getFullYear();
+            const month = ('0' + (date.getMonth() + 1)).slice(-2);
+            const day = ('0' + date.getDate()).slice(-2);
+            const hours = ('0' + date.getHours()).slice(-2);
+            const minutes = ('0' + date.getMinutes()).slice(-2);
+        
+            // 曜日部分の取得
+            const weekdays = ['日', '月', '火', '水', '木', '金', '土'];
+            const weekday = weekdays[date.getDay()];
+        
+            return `${year}/${month}/${day} ${hours}:${minutes} (${weekday})`;
+        }
+        const formatteddetails = results.map(detail => ({
+            bid_datetime: formatDate(detail.bid_datetime),
+            bid_amount: detail.bid_amount
+        }));
+
+        callback(null, formatteddetails);
     });
 };
 
-module.exports = { getCarDetails, getCurrentPrice, updateCurrentPrice };
+
+const addbit = (auctionId, listingId, userId, bidDatetime, bidAmount, callback) => {
+    const connection = db.connectDB();
+
+    connection.beginTransaction((err) => {
+        if (err) {
+            return callback(err);
+        }
+
+        // 入札履歴追加
+        const query1 = 'INSERT INTO `bid_tbl` (`user_id`, `listing_id`, `bid_datetime`, `bid_amount`, `auction_id`) VALUES (?, ?, ?, ?, ?)';
+        connection.query(query1, [userId, listingId, bidDatetime, bidAmount, auctionId], (err, results) => {
+            if (err) {
+                return connection.rollback(() => {
+                    callback(err);
+                });
+            }
+
+            // 現在価格更新
+            const query2 = 'UPDATE `listing_tbl` SET `current_price` = ? WHERE `auction_id` = ?';
+            connection.query(query2, [bidAmount, auctionId], (err, results) => {
+                if (err) {
+                    return connection.rollback(() => {
+                        callback(err);
+                    });
+                }
+
+                // トランザクションをコミット
+                connection.commit((err) => {
+                    db.disconnectDB();
+                    if (err) {
+                        return connection.rollback(() => {
+                            callback(err);
+                        });
+                    }
+                    callback(null);
+                });
+            });
+        });
+    });
+};
+
+module.exports = { getCarDetails, getBidDetails, getCurrentPrice, addbit};
