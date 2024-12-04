@@ -31,7 +31,9 @@ const getBidDetails = (auctionId, callback) => {
     const query = `
         SELECT bid_datetime, bid_amount 
         FROM bid_tbl
-        WHERE auction_id = ?;
+        WHERE auction_id = ?
+        ORDER BY bid_datetime DESC
+        LIMIT 10;
     `;
     
     connection.query(query, [auctionId], (err, results) => {
@@ -39,9 +41,33 @@ const getBidDetails = (auctionId, callback) => {
         if (err) {
             return callback(err);
         }
-        callback(null, results); // 結果が存在しない場合はnullを返す
+
+        // 日付をフォーマットする
+        function formatDate(dateString) {
+            const date = new Date(dateString);
+        
+            // 日付部分のフォーマット
+            const year = date.getFullYear();
+            const month = ('0' + (date.getMonth() + 1)).slice(-2);
+            const day = ('0' + date.getDate()).slice(-2);
+            const hours = ('0' + date.getHours()).slice(-2);
+            const minutes = ('0' + date.getMinutes()).slice(-2);
+        
+            // 曜日部分の取得
+            const weekdays = ['日', '月', '火', '水', '木', '金', '土'];
+            const weekday = weekdays[date.getDay()];
+        
+            return `${year}/${month}/${day} ${hours}:${minutes} (${weekday})`;
+        }
+        const formatteddetails = results.map(detail => ({
+            bid_datetime: formatDate(detail.bid_datetime),
+            bid_amount: detail.bid_amount
+        }));
+
+        callback(null, formatteddetails);
     });
 };
+
 
 const addbit = (auctionId, listingId, userId, bidDatetime, bidAmount, callback) => {
     const connection = db.connectDB();
@@ -84,5 +110,4 @@ const addbit = (auctionId, listingId, userId, bidDatetime, bidAmount, callback) 
     });
 };
 
-
-module.exports = { getCarDetails, getBidDetails, getCurrentPrice, addbit };
+module.exports = { getCarDetails, getBidDetails, getCurrentPrice, addbit};

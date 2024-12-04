@@ -66,16 +66,17 @@ app.get('/bid', (req, res) => {
                     current_price: currentPrice, 
                     end_datetime: auctionend, 
                     time_remaining: timeRemaining,
-                    bid_details: bidDetails
+                    bid_details: bidDetails,
                 });
             });
         });
     });
 });
 
-// 入札処理
+// 入札確認
 app.get('/submit-bid', (req, res) => {
     const auctionId = req.query.auction_id;
+    const auctionend = req.query.end_datetime;
     const carId = req.query.car_id;
     const listingId = req.query.listing_id;
     const bidAmount = req.query.bidAmount;
@@ -86,23 +87,32 @@ app.get('/submit-bid', (req, res) => {
         console.error("必要なデータが不足しています");
         return res.status(400).send("必要なデータが不足しています");
     }
+    const endDate = new Date(auctionend);
+    const currentDate = new Date();
+    const timeDiff = endDate - currentDate;
+    
     bidQueries.getCarDetails(carId, (err, carDetails) => {
         if (err) {
             console.error("車データの取得エラー:", err);
             return res.status(500).send("データの取得に失敗しました");
-        }console.log(carDetails, bidAmount, auctionId, listingId);
+        }
+        if(timeDiff < 0){
+            const text = "このオークションは終了済みです"
+            res.render('confirm-bid', { text });
+        }
         res.render('submit-bid', { title: '入札確認画面', carDetails, bidAmount, auctionId, listingId });
     });
 });
 
+// 入札処理
 app.get('/confirmbid', (req, res) => {
-    console.log(req.query);
     const auctionId = req.query.auction_id;
     const carId = req.query.car_id;
     const listingId = req.query.listing_id;
     const bidAmount = req.query.bidAmount;
     const bidDatetime = new Date();
     const userId = "1";
+    const text = "入札完了"
     
     if (!auctionId || !listingId || !bidAmount) {
         console.error("必要なデータが不足しています");
@@ -125,7 +135,8 @@ app.get('/confirmbid', (req, res) => {
             res.render('confirm-bid', { 
                 title: '入札確認画面', 
                 carDetails: carDetails, 
-                bidAmount: bidAmount 
+                bidAmount: bidAmount,
+                text:text
             });
         });
     });
