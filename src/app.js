@@ -32,7 +32,8 @@ app.get('/', (req, res) => {
         if (err) {
             console.error("オークションデータの取得エラー:", err);
             return res.status(500).send("データの取得に失敗しました");
-        }
+        }console.log(auctionData);
+        
         res.render('index', { user: req.session.user, title: 'ホームページ', auctionData: auctionData });
     });
 });
@@ -67,12 +68,12 @@ app.get('/bid', (req, res) => {
                 console.error("車価格の取得エラー:", err);
                 return res.status(500).send("データの取得に失敗しました");
             }
-            bidQueries.getBidDetails(auctionId, (err, bidDetails) => {
+            bidQueries.getBidDetails(listingId, (err, bidDetails) => {
                 if (err) {
                     console.error("入札履歴の取得エラー:", err);
                     return res.status(500).send("データの取得に失敗しました");
                 }
-                if(timeDiff){
+                if(timeDiff < 0){
                     timeRemaining = "オークション終了"
                 }
                 res.render('bid', { 

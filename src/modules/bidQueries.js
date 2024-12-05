@@ -29,9 +29,9 @@ const getCurrentPrice = (auctionId, callback) => {
 const getBidDetails = (auctionId, callback) => {
     const connection = db.connectDB();
     const query = `
-        SELECT bid_datetime, bid_amount 
+        SELECT bid_datetime, bid_amount, bid_id, user_id
         FROM bid_tbl
-        WHERE auction_id = ?
+        WHERE listing_id = ?
         ORDER BY bid_datetime DESC
         LIMIT 10;
     `;
@@ -61,7 +61,9 @@ const getBidDetails = (auctionId, callback) => {
         }
         const formatteddetails = results.map(detail => ({
             bid_datetime: formatDate(detail.bid_datetime),
-            bid_amount: detail.bid_amount
+            bid_amount: detail.bid_amount,
+            bid_id: detail.bid_id,
+            user_id: detail.user_id
         }));
 
         callback(null, formatteddetails);
@@ -78,7 +80,7 @@ const addbit = (auctionId, listingId, userId, bidDatetime, bidAmount, callback) 
         }
 
         // 入札履歴追加
-        const query1 = 'INSERT INTO `bid_tbl` (`user_id`, `listing_id`, `bid_datetime`, `bid_amount`, `auction_id`) VALUES (?, ?, ?, ?, ?)';
+        const query1 = 'INSERT INTO `bid_tbl` (`user_id`, `listing_id`, `bid_datetime`, `bid_amount`) VALUES (?, ?, ?, ?)';
         connection.query(query1, [userId, listingId, bidDatetime, bidAmount, auctionId], (err, results) => {
             if (err) {
                 return connection.rollback(() => {
