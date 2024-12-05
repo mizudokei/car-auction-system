@@ -111,11 +111,15 @@
                 <% if (bid_details && bid_details.length > 0) { %>
                     <table class="table-auto border border-collapse mx-auto text-center">
                         <tr class="bg-gray-800 text-white">
+                            <th class="border px-4 py-2">入札者ID</th>
+                            <th class="border px-4 py-2">入札ID</th>
                             <th class="border px-4 py-2">入札日</th>
                             <th class="border px-4 py-2">入札価格</th>
                         </tr>
                         <% bid_details.forEach(detail => { %>
                         <tr>
+                            <td class="border px-4 py-2"><%= detail.user_id %></td>
+                            <td class="border px-4 py-2"><%= detail.bid_id %></td>
                             <td class="border px-4 py-2"><%= detail.bid_datetime %></td>
                             <td class="border px-4 py-2"><%= detail.bid_amount %></td>
                         </tr>
