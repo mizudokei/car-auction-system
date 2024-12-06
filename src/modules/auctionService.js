@@ -21,14 +21,17 @@ function formatDate(dateString) {
 // オークションデータと関連する車情報を取得する関数
 const getAuctionData = (callback) => {
     const connection = db.connectDB(); // 接続を確立
+    const today = new Date();
 
     const query = `
         SELECT auction_id, start_datetime, end_datetime
         FROM auction_tbl
-        WHERE auction_status = '開催中';
+        WHERE auction_status = '開催中' 
+        AND start_datetime <= ?
+        AND end_datetime >= ?;
     `;
     
-    connection.query(query, [], (err, auctions) => {
+    connection.query(query, [today, today], (err, auctions) => {
         if (err) return callback(err, null);
 
         const auctionIds = auctions.map(auction => auction.auction_id);
@@ -36,33 +39,30 @@ const getAuctionData = (callback) => {
             return callback(null, []);
         }
 
-        //開始、終了日時のフォーマット
+        // 開始、終了日時のフォーマット
         const formattedAuctions = auctions.map(auction => ({
             auction_id: auction.auction_id,
             start_datetime: formatDate(auction.start_datetime),
             end_datetime: formatDate(auction.end_datetime)
         }));
-        // console.log("取得したオークションデータ:", formattedAuctions);
 
         const carQuery = `
             SELECT l.listing_id, c.car_id, c.car_type, c.car_manufacturer, l.current_price, l.auction_id, c.car_image, c.car_year, c.car_mileage, c.car_color
             FROM listing_tbl l
             JOIN car_tbl c ON l.car_id = c.car_id
             WHERE l.auction_id IN (?);
-
         `;
         
         connection.query(carQuery, [auctionIds], (err, carDetails) => {
             if (err) return callback(err, null);
-            // console.log("取得した車データ:", carDetails);
-            
+
             // 車情報があるオークションのみフィルタリング
-            const auctionData = formattedAuctions.map(formattedAuctions => {
-                const cars = carDetails.filter(car => car.auction_id === formattedAuctions.auction_id);
+            const auctionData = formattedAuctions.map(auction => {
+                const cars = carDetails.filter(car => car.auction_id === auction.auction_id);
                 // 車情報がないオークションは除外
                 if (cars.length > 0) {
                     return {
-                        ...formattedAuctions,
+                        ...auction,
                         cars: cars
                     };
                 }
@@ -73,5 +73,6 @@ const getAuctionData = (callback) => {
         });
     });
 };
+
 
 module.exports = { getAuctionData };

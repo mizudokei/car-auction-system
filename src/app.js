@@ -3,6 +3,7 @@ const app = express();
 const db = require('./modules/db');
 const auctionService = require('./modules/auctionService');
 const bidQueries = require('./modules/bidQueries');
+const auctionEnd = require('./modules/auctionEnd');
 const path = require('path');
 const mysql = require('mysql');
 const { title } = require('process');
@@ -16,6 +17,41 @@ app.set('views', path.join(__dirname, '../views'));
 app.use(express.static(path.join(__dirname, '..', 'public')));
 app.use('/resources', express.static(path.join(__dirname, '../resources')));
 app.set('view engine', 'ejs');
+
+// サーバーが起動するときに実行する処理
+const initializeServer = () => {
+    auctionEnd.getAuctionEnd((err, AuctionEnd) => {
+        if (err) {
+            console.error("オークション終了データの取得エラー:", err);
+            return; // res オブジェクトが利用できないため、レスポンスを送る必要はありません
+        }
+
+        AuctionEnd.forEach(auction => {
+            const endDate = new Date(auction.end_datetime);
+            const currentDate = new Date();
+            const timeDiff = endDate - currentDate;
+            console.log(`オークションID: ${auction.auction_id}, 残り時間: ${timeDiff}`);
+
+            setTimeout(() => {
+                auctionEnd.endAuction(auction.auction_id, (err, results) => {
+                    if (err) {
+                        console.error(`オークションID ${auction.auction_id} の終了処理でエラーが発生しました:`, err);
+                    } else {
+                        console.log(`オークションID ${auction.auction_id} の終了処理が成功しました:`, results);
+                    }
+                    auctionEnd.sendMail(auction.auction_id, results, (err) => {
+                        if (err) {
+                            console.error(`オークションID ${auction.auction_id} のメール送信でエラーが発生しました:`, err);
+                        } else {
+                            console.log(`オークションID ${auction.auction_id} のメール送信が成功しました`);
+                        }
+                    });
+                });
+            }, timeDiff);            
+        });
+    });
+};
+initializeServer();
 
 app.use(session({
     secret: 'ihiw03_secret_key',
