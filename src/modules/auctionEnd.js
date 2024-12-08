@@ -124,7 +124,7 @@ const sendMail = (auction_id, results, callback) => {
     const formattedResults = results.map(result => {
         return {
             userId: result.user_id,
-            listingId: result.listing_id,
+            listing_id: result.listing_id,
             bidDatetime: new Date(result.bid_datetime),
             bidAmount: result.bid_amount
         };
@@ -133,6 +133,49 @@ const sendMail = (auction_id, results, callback) => {
     // formattedResultsが空の場合は処理を終了する
     if (formattedResults.length === 0) {
         console.error('入札者がいませんでした。');
+
+        const connection = db.connectDB();
+        const selectListingQuery = "SELECT listing_id FROM `listing_tbl` WHERE auction_id = ?";
+        connection.query(selectListingQuery, [auction_id], (err, listingResults) => {
+            if (err) {
+                db.disconnectDB();
+                return callback(err);
+            }
+
+            const processNoBids = (index) => {
+                if (index >= listingResults.length) {
+                    db.disconnectDB();
+                    return callback();
+                }
+
+                const listing = listingResults[index];
+                const caridQuery = "SELECT car_id FROM `listing_tbl` WHERE listing_id = ?";
+                connection.query(caridQuery, [listing.listing_id], (err, carResults) => {
+                    if (err) {
+                        db.disconnectDB();
+                        return callback(err);
+                    }
+
+                    if (carResults.length > 0) {
+                        const { car_id } = carResults[0];
+                        const carQuery = "UPDATE `car_tbl` SET `car_status` = '在庫あり' WHERE `car_id` = ?";
+                        console.log("car_status:" + car_id + " 在庫ありに変更");
+
+                        connection.query(carQuery, [car_id], (err) => {
+                            if (err) {
+                                db.disconnectDB();
+                                return callback(err);
+                            }
+                            processNoBids(index + 1);
+                        });
+                    } else {
+                        processNoBids(index + 1);
+                    }
+                });
+            };
+            processNoBids(0);
+        });
+
         return;
     }
 
