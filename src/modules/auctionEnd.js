@@ -27,15 +27,22 @@ const getAuctionEnd = (callback) => {
 
 const endAuction = (auction_id, callback) => {
     const connection = db.connectDB();
-    const updateQuery = "UPDATE `auction_tbl` SET `auction_status` = '終了' WHERE `auction_id` = ?;";
-    console.log("auction_id:" + auction_id + " オークション終了");
+    
+    const updateAuctionStatus = () => {
+        const updateQuery = "UPDATE `auction_tbl` SET `auction_status` = '終了' WHERE `auction_id` = ?";
+        console.log("auction_id:" + auction_id + " オークション終了");
 
-    connection.query(updateQuery, [auction_id], (err, results) => {
-        if (err) {
-            db.disconnectDB();
-            return callback(err);
-        }
+        connection.query(updateQuery, [auction_id], (err, results) => {
+            if (err) {
+                db.disconnectDB();
+                return callback(err);
+            }
 
+            processListings();
+        });
+    };
+
+    const processListings = () => {
         const selectListingQuery = "SELECT listing_id FROM `listing_tbl` WHERE auction_id = ?";
         connection.query(selectListingQuery, [auction_id], (err, listingResults) => {
             if (err) {
@@ -70,7 +77,7 @@ const endAuction = (auction_id, callback) => {
                             console.log(`auction_id: ${auction_id} listing_id: ${listing.listing_id} の落札処理が完了しました。`);
                             successfulBids.push({ user_id, listing_id: listing.listing_id, bid_datetime, bid_amount });
 
-                            processListing(index + 1);
+                            updateCarStatus(listing.listing_id, () => processListing(index + 1));
                         });
                     } else {
                         processListing(index + 1);
@@ -79,7 +86,36 @@ const endAuction = (auction_id, callback) => {
             };
             processListing(0);
         });
-    });
+    };
+
+    const updateCarStatus = (listing_id, callback) => {
+        const caridQuery = "SELECT car_id FROM `listing_tbl` WHERE listing_id = ?";
+        connection.query(caridQuery, [listing_id], (err, carResults) => {
+            if (err) {
+                db.disconnectDB();
+                return callback(err);
+            }
+
+            if (carResults.length > 0) {
+                const { car_id } = carResults[0];
+                const carQuery = "UPDATE `car_tbl` SET `car_status` = '落札済' WHERE `car_id` = ?";
+                console.log("car_status:" + car_id + " 落札済に変更");
+
+                connection.query(carQuery, [car_id], (err) => {
+                    if (err) {
+                        db.disconnectDB();
+                        return callback(err);
+                    }
+                    callback();
+                });
+            } else {
+                callback();
+            }
+        });
+    };
+
+    // メイン処理の開始
+    updateAuctionStatus();
 };
 
 //メール送る関数
@@ -94,7 +130,11 @@ const sendMail = (auction_id, results, callback) => {
         };
     });
 
-    console.log(formattedResults);
+    // formattedResultsが空の場合は処理を終了する
+    if (formattedResults.length === 0) {
+        console.error('入札者がいませんでした。');
+        return;
+    }
 
     const nodemailer = require('nodemailer');
 
@@ -150,16 +190,20 @@ const sendMail = (auction_id, results, callback) => {
                     const { car_type } = carResults[0];
 
                     // メール関連
+                    const mailservice = 'gmail';         //メールの種類
+                    const From_Email = 'your-email@gmail.com'; // 送信元メールを入力
+                    const Pass = 'your-app-password';       // アプリパスワードを使用
+
                     const transporter = nodemailer.createTransport({
-                        service: `${mailservice}`,         //メールの種類
+                        service: mailservice,
                         auth: {
-                            user: `${From_Email}`,// 送信元メールを入力
-                            pass: `${Pass}`       // アプリパスワードを使用
+                            user: From_Email,
+                            pass: Pass
                         }
                     });
 
                     const mailOptions = {
-                        from: `${From_Email}`, //送信元メールを入力
+                        from: From_Email,
                         to: mail, // 送信先メールアドレス
                         subject: `HAL自動車オークション ${formatDate(today)} 送信`,
                         text: `
@@ -200,7 +244,6 @@ const sendMail = (auction_id, results, callback) => {
         });
     });
 };
-
 
 
 module.exports = { getAuctionEnd, endAuction, sendMail };

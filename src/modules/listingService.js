@@ -7,7 +7,7 @@ const getActiveAuctionEvents = async () => {
 		const query = `
 			SELECT auction_id, start_datetime, end_datetime
 			FROM auction_tbl
-			WHERE auction_status != '終了'
+			WHERE auction_status = '準備中'
 			`;
 		return new Promise((resolve, reject) => {
 			connection.query(query, (err, results) => {
@@ -54,9 +54,9 @@ const registerListings = async (auction_id, formData) => {
 		}
 		// 出品情報を登録
 		const insertQuery = `
-			INSERT INTO listing_tbl (car_id, starting_price, auction_id)
-			VALUES (${carId}, ${startingPrice}, ${auction_id});
-			`;
+			INSERT INTO listing_tbl (car_id, starting_price, current_price, auction_id)
+			VALUES (${carId}, ${startingPrice}, ${startingPrice}, ${auction_id});
+		`;
 		await new Promise((resolve, reject) => {
 			connection.query(insertQuery, (err, results) => {
 				if (err) {
@@ -65,6 +65,17 @@ const registerListings = async (auction_id, formData) => {
 				resolve(results);
 			});
 		});
+		// オークションステータス更新
+		const auctionQuery = "UPDATE `auction_tbl` SET `auction_status` = '開催中' WHERE `auction_tbl`.`auction_id` = ?";
+		await new Promise((resolve, reject) => {
+			connection.query(auctionQuery, [auction_id], (err, results) => {  // プレースホルダーに渡す値を配列として渡す
+				if (err) {
+					return reject(err);
+				}
+				resolve(results);
+			});
+		});
+		
 		// 車両ステータスを更新
 		const updateQuery = `
 			UPDATE car_tbl

@@ -49,7 +49,7 @@
 									<td><%= car.car_id %></td>
 									<td><%= car.car_manufacturer %> <%= car.car_type %></td>
 									<td>
-										<input type="checkbox" name="selectedCars[]" value="<%= car.car_id %>" />
+										<input type="radio" name="selectedCars[]" value="<%= car.car_id %>" />
 									</td>
 									<td>
 										<input type="number" name="startingPrice_<%= car.car_id %>" min="1" />
