@@ -5,6 +5,7 @@ const db = require('./modules/db');
 const carQueries = require('./modules/carQueries');
 const auctionQueries = require('./modules/auctionQueries');
 const listingService = require('./modules/listingService');
+const auctionEnd = require('./modules/auctionEnd');
 const path = require('path');
 const multer = require('multer');
 const bodyParser = require('body-parser');
@@ -12,6 +13,32 @@ const bodyParser = require('body-parser');
 // body-parser の設定
 app.use(bodyParser.urlencoded({ extended: true }));  // URLエンコードされたデータを処理
 app.use(bodyParser.json());  // JSON形式のデータを処理
+
+// サーバーが起動するときに実行する処理
+const initializeServer = () => {
+    auctionEnd.getAuctionEnd((err, AuctionEnd) => {
+        if (err) {
+            console.error("オークション終了データの取得エラー:", err);
+            return; // res オブジェクトが利用できないため、レスポンスを送る必要はありません
+        }
+
+        AuctionEnd.forEach(auction => {
+            const endDate = new Date(auction.end_datetime);
+            const currentDate = new Date();
+            const timeDiff = endDate - currentDate;
+            console.log(`オークションID: ${auction.auction_id}, 残り時間: ${timeDiff}`);
+
+            setTimeout(() => {
+                auctionEnd.endAuction(auction.auction_id, (err, results) => {
+                    if (err) {
+                        console.error(`オークションID ${auction.auction_id} の終了処理でエラーが発生しました:`, err);
+                    }
+                });
+            }, timeDiff);
+        });
+    });
+};
+initializeServer();
 
 // 車両画像アップロードの設定
 const storage = multer.diskStorage({
