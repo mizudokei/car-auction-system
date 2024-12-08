@@ -217,12 +217,10 @@ app.listen(3000, () => {
     console.log('Server is running on http://localhost:3000');
 });
 
+//車両登録処理
 app.post('/car-listing/register', async (req, res) => {
     try {
         const { auction_id, selectedCars } = req.body;
-
-        console.log('Received auction_id:', auction_id);
-        console.log('Received selectedCars:', selectedCars);
 
         // `selectedCars`が存在しない場合、エラーを返す
         if (!selectedCars || selectedCars.length === 0) {

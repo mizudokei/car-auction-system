@@ -68,8 +68,7 @@ app.get('/', (req, res) => {
         if (err) {
             console.error("オークションデータの取得エラー:", err);
             return res.status(500).send("データの取得に失敗しました");
-        }console.log(auctionData);
-        
+        }
         res.render('index', { user: req.session.user, title: 'ホームページ', auctionData: auctionData });
     });
 });
