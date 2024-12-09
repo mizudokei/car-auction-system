@@ -47,10 +47,11 @@ const getAuctionData = (callback) => {
         }));
 
         const carQuery = `
-            SELECT l.listing_id, c.car_id, c.car_type, c.car_manufacturer, l.current_price, l.auction_id, c.car_image, c.car_year, c.car_mileage, c.car_color
-            FROM listing_tbl l
-            JOIN car_tbl c ON l.car_id = c.car_id
-            WHERE l.auction_id IN (?);
+        SELECT l.listing_id, c.car_id, c.car_type, m.manufacturer_name, l.current_price, l.auction_id, c.car_image, c.car_year, c.car_mileage, c.car_color
+        FROM listing_tbl l
+        JOIN car_tbl c ON l.car_id = c.car_id
+        JOIN manufacturer_tbl m ON c.manufacturer_id = m.manufacturer_id
+        WHERE l.auction_id IN (?);
         `;
         
         connection.query(carQuery, [auctionIds], (err, carDetails) => {

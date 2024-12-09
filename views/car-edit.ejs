@@ -36,7 +36,13 @@
 
                     <div class="form-group">
                         <label for="car_manufacturer">メーカー名</label>
-                        <input type="text" id="car_manufacturer" name="car_manufacturer" value="<%= car.car_manufacturer %>" class="form-input" required>
+                        <select id="car_manufacturer" name="car_manufacturer" class="form-input" required>
+                            <% manufacturers.forEach(manufacturer => { %>
+                                <option value="<%= manufacturer.manufacturer_id %>" <%= car.manufacturer_id === manufacturer.manufacturer_id ? 'selected' : '' %>>
+                                    <%= manufacturer.manufacturer_name %>
+                                </option>
+                            <% }) %>
+                        </select>
                     </div>
 
                     <div class="form-group">
