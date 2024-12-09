@@ -7,7 +7,7 @@ const getActiveAuctionEvents = async () => {
 		const query = `
 			SELECT auction_id, start_datetime, end_datetime
 			FROM auction_tbl
-			WHERE auction_status = '準備中'
+			WHERE auction_status != '終了'
 			`;
 		return new Promise((resolve, reject) => {
 			connection.query(query, (err, results) => {

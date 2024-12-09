@@ -98,7 +98,7 @@ app.get('/bid', (req, res) => {
             return res.status(500).send("データの取得に失敗しました");
         }
 
-        bidQueries.getCurrentPrice(auctionId, (err, currentPrice) => {
+        bidQueries.getCurrentPrice(listingId, (err, currentPrice) => {
             if (err) {
                 console.error("車価格の取得エラー:", err);
                 return res.status(500).send("データの取得に失敗しました");
@@ -136,7 +136,7 @@ app.get('/submit-bid', (req, res, next) => {
     const bidAmount = req.query.bidAmount;
     const userId = req.session.user ? req.session.user.user_id : null;
 
-    if (!auctionId || !carId || !bidAmount) {
+    if (!listingId || !carId || !bidAmount) {
         console.error("必要なデータが不足しています");
         return res.status(400).send("必要なデータが不足しています");
     }

@@ -13,11 +13,11 @@ const getCarDetails = (carId, callback) => {
     });
 };
 
-const getCurrentPrice = (auctionId, callback) => {
+const getCurrentPrice = (listingId, callback) => {
     const connection = db.connectDB();
-    const query = 'SELECT current_price FROM listing_tbl WHERE auction_id = ?';
+    const query = 'SELECT current_price FROM listing_tbl WHERE listing_id = ?';
     
-    connection.query(query, [auctionId], (err, results) => {
+    connection.query(query, [listingId], (err, results) => {
         db.disconnectDB();
         if (err) {
             return callback(err);
@@ -89,7 +89,7 @@ const addbit = (auctionId, listingId, userId, bidDatetime, bidAmount, callback) 
             }
 
             // 現在価格更新
-            const query2 = 'UPDATE `listing_tbl` SET `current_price` = ? WHERE `auction_id` = ?';
+            const query2 = 'UPDATE `listing_tbl` SET `current_price` = ? WHERE `listing_id` = ?';
             connection.query(query2, [bidAmount, auctionId], (err, results) => {
                 if (err) {
                     return connection.rollback(() => {
