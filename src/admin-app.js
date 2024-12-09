@@ -3,6 +3,7 @@ const router = express.Router();
 const app = express();
 const db = require('./modules/db');
 const carQueries = require('./modules/carQueries');
+const manufacturerQueries = require('./modules/manufacturerQueries');
 const auctionQueries = require('./modules/auctionQueries');
 const listingService = require('./modules/listingService');
 const auctionEnd = require('./modules/auctionEnd');
@@ -78,12 +79,16 @@ app.get('/carManagement', (req, res) => {
 
 // 車両登録画面
 app.get('/carRegistration', (req, res) => {
-    res.render('car-registration', { title: '車両登録' });
+    manufacturerQueries.getManufacturers((err, manufacturers) => {
+        if (err) {
+            return res.status(500).send("メーカー情報の取得に失敗しました");
+        }
+        res.render('car-registration', { title: '車両登録', manufacturers });
+    });
 });
 
 // 車両登録処理
 app.post('/carRegistration', upload.single('car_image'), (req, res) => {
-    // フォームからの入力データ
     const { car_type, car_manufacturer, car_year, car_mileage, car_color } = req.body;
 
     // アップロードされた画像のパス
@@ -92,7 +97,7 @@ app.post('/carRegistration', upload.single('car_image'), (req, res) => {
     // データベースに登録
     carQueries.addCar({
         car_type,
-        car_manufacturer,
+        car_manufacturer, // manufacturer_id を使用
         car_year,
         car_mileage,
         car_color,
@@ -108,12 +113,19 @@ app.post('/carRegistration', upload.single('car_image'), (req, res) => {
     });
 });
 
-
 // 車両情報編集画面
 app.get('/editCar/:car_id', (req, res) => {
     const carId = req.params.car_id;  // :car_id を取得
     carQueries.getCarById(carId, (err, car) => {
-        res.render('car-edit', { title: '車両情報編集ページ', car });
+        if (err) {
+            return res.status(500).send("車両情報の取得に失敗しました");
+        }
+        manufacturerQueries.getManufacturers((err, manufacturers) => {
+            if (err) {
+                return res.status(500).send("メーカー情報の取得に失敗しました");
+            }
+            res.render('car-edit', { title: '車両情報編集ページ', car, manufacturers });
+        });
     });
 });
 
@@ -169,7 +181,7 @@ app.post('/updateCar/:car_id', upload.single('car_image'), (req, res) => {
     // 車両情報を更新する
     carQueries.updateCarById(carId, {
         car_type,
-        car_manufacturer,
+        car_manufacturer, // manufacturer_id を使用
         car_year,
         car_mileage,
         car_color,
@@ -217,7 +229,7 @@ app.listen(3000, () => {
     console.log('Server is running on http://localhost:3000');
 });
 
-//車両登録処理
+//出品登録処理
 app.post('/car-listing/register', async (req, res) => {
     try {
         const { auction_id, selectedCars } = req.body;

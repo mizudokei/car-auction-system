@@ -4,11 +4,15 @@ const db = require('./db');
 // 車両情報を全件あるいは検索条件に基づいて取得するメソッド
 const getCars = (searchTerm, callback) => {
     const connection = db.connectDB();
-    let sql = 'SELECT * FROM car_tbl';
+    let sql = `
+        SELECT c.*, m.manufacturer_name 
+        FROM car_tbl c
+        JOIN manufacturer_tbl m ON c.manufacturer_id = m.manufacturer_id
+    `;
     let params = [];
 
     if (searchTerm) {
-        sql += ' WHERE car_type LIKE ?';
+        sql += ' WHERE c.car_type LIKE ?';
         params.push(`%${searchTerm}%`);
     }
 
@@ -46,22 +50,22 @@ const addCar = (carData, callback) => {
     const connection = db.connectDB();
     const {
         car_type,
-        car_manufacturer,
+        car_manufacturer, // ここは manufacturer_id に変更
         car_year,
         car_mileage,
         car_color,
         car_image
     } = carData;
 
-    const sql = 'INSERT INTO car_tbl (car_type, car_manufacturer, car_year, car_mileage, car_color, car_image, car_status) VALUES (?, ?, ?, ?, ?, ?, ?)';
+    const sql = 'INSERT INTO car_tbl (car_type, manufacturer_id, car_year, car_mileage, car_color, car_image, car_status) VALUES (?, ?, ?, ?, ?, ?, ?)';
     const params = [
         car_type,
-        car_manufacturer,
+        car_manufacturer, // manufacturer_id を使用
         car_year,
         car_mileage,
         car_color,
-        car_image || null, // 画像がない場合はnull
-        '在庫あり' // デフォルトのステータス
+        car_image || null,
+        '在庫あり'
     ];
 
     connection.query(sql, params, (err, results) => {
@@ -81,7 +85,7 @@ const updateCarById = (car_id, carData, callback) => {
     const connection = db.connectDB();
     const {
         car_type,
-        car_manufacturer,
+        car_manufacturer, // ここも manufacturer_id に変更
         car_year,
         car_mileage,
         car_color,
@@ -89,8 +93,8 @@ const updateCarById = (car_id, carData, callback) => {
     } = carData;
 
     const sql = car_image
-        ? 'UPDATE car_tbl SET car_type = ?, car_manufacturer = ?, car_year = ?, car_mileage = ?, car_color = ?, car_image = ? WHERE car_id = ?'
-        : 'UPDATE car_tbl SET car_type = ?, car_manufacturer = ?, car_year = ?, car_mileage = ?, car_color = ? WHERE car_id = ?';
+        ? 'UPDATE car_tbl SET car_type = ?, manufacturer_id = ?, car_year = ?, car_mileage = ?, car_color = ?, car_image = ? WHERE car_id = ?'
+        : 'UPDATE car_tbl SET car_type = ?, manufacturer_id = ?, car_year = ?, car_mileage = ?, car_color = ? WHERE car_id = ?';
 
     const params = car_image
         ? [car_type, car_manufacturer, car_year, car_mileage, car_color, car_image, car_id]
