@@ -27,9 +27,10 @@ const getActiveAuctionEvents = async () => {
 const getAvailableCars = async () => {
 	const connection = db.connectDB(); // 接続を取得
 	const query = `
-		SELECT car_id, car_type, car_manufacturer, car_year, car_mileage, car_color, car_image
-		FROM car_tbl
-		WHERE car_status = "在庫あり";
+		SELECT c.car_id, c.car_type, m.manufacturer_name, c.car_year, c.car_mileage, c.car_color, c.car_image
+		FROM car_tbl c
+		JOIN manufacturer_tbl m ON c.manufacturer_id = m.manufacturer_id
+		WHERE c.car_status = '在庫あり';
 		`;
 	return new Promise((resolve, reject) => {
 		connection.query(query, (err, results) => {
@@ -66,7 +67,7 @@ const registerListings = async (auction_id, formData) => {
 			});
 		});
 		// オークションステータス更新
-		const auctionQuery = "UPDATE `auction_tbl` SET `auction_status` = '開催中' WHERE `auction_tbl`.`auction_id` = ?";
+		const auctionQuery = "UPDATE `auction_tbl` SET `auction_status` = '開催中' WHERE `auction_id` = ?";
 		await new Promise((resolve, reject) => {
 			connection.query(auctionQuery, [auction_id], (err, results) => {  // プレースホルダーに渡す値を配列として渡す
 				if (err) {
@@ -97,9 +98,10 @@ const registerListings = async (auction_id, formData) => {
 const getListedCars = async () => {
 	const connection = db.connectDB();
 	const query = `
-		SELECT car_id, car_type, car_manufacturer, car_year, car_mileage, car_color, car_image
-		FROM car_tbl
-		WHERE car_status = "出品中";
+		SELECT c.car_id, c.car_type, m.manufacturer_name, c.car_year, c.car_mileage, c.car_color, c.car_image
+		FROM car_tbl c
+		JOIN manufacturer_tbl m ON c.manufacturer_id = m.manufacturer_id
+		WHERE c.car_status = '出品中';
 		`;
 	return new Promise((resolve, reject) => {
 		connection.query(query, (err, results) => {
