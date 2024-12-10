@@ -47,7 +47,8 @@ const storage = multer.diskStorage({
         cb(null, path.join(__dirname, '../resources/car-images'));
     },
     filename: (req, file, cb) => {
-        cb(null, `${Date.now()}_${file.originalname}`);
+        const formattedFileName = Buffer.from(file.originalname, 'utf-8').toString('utf-8');
+        cb(null, `${Date.now()}_${formattedFileName}`);
     }
 });
 const upload = multer({ storage: storage });
