@@ -25,161 +25,91 @@ const getAuctionEnd = (callback) => {
     });
 };
 
+const successfulbid = (listing_id, callback) => {
+    const connection = db.connectDB();
+
+    const selectBidQuery = "SELECT user_id, bid_amount, bid_datetime FROM `bid_tbl` WHERE listing_id = ? ORDER BY bid_amount DESC LIMIT 1";
+    connection.query(selectBidQuery, [listing_id], (err, bidResults) => {
+        if (err) {
+             db.disconnectDB();
+            return callback(err);
+        }
+
+        if (bidResults.length > 0) {
+            const { user_id, bid_amount, bid_datetime } = bidResults[0];
+            const insertQuery = "INSERT INTO `successfulbid_tbl` (user_id, listing_id, successfulbid_datetime, successfulbid_amount) VALUES (?, ?, ?, ?)";
+            connection.query(insertQuery, [user_id, listing_id, bid_datetime, bid_amount], (err, insertResults) => {
+                if (err) {
+                     db.disconnectDB();
+                    return callback(err);
+                }
+                console.log(`listing_id: ${listing_id} の落札処理が完了しました。`);
+
+                const carIdQuery = 'SELECT car_id FROM `listing_tbl` WHERE listing_id = ?';
+                connection.query(carIdQuery, [listing_id], (err, carResults) => {
+                    if (err) {
+                         db.disconnectDB();
+                        return callback(err);
+                    }
+                    const car_id = carResults[0].car_id;
+                    const updateCarQuery = "UPDATE `car_tbl` SET `car_status` = '落札済' WHERE `car_id` = ?;";
+                    connection.query(updateCarQuery, [car_id], (err) => {
+                         db.disconnectDB();
+                        if (err) {
+                            return callback(err);
+                        }
+                        const bidder = "y";
+                        callback(null, bidder);
+                    });
+                });
+            });
+        } else {
+            console.log(`listing_id: ${listing_id} に対する入札者がいませんでした`);
+            const carIdQuery = 'SELECT car_id FROM `listing_tbl` WHERE listing_id = ?';
+            connection.query(carIdQuery, [listing_id], (err, carResults) => {
+                if (err) {
+                     db.disconnectDB();
+                    return callback(err);
+                }
+                const car_id = carResults[0].car_id;
+                const updateCarQuery = "UPDATE `car_tbl` SET `car_status` = '在庫あり' WHERE `car_id` = ?;";
+                connection.query(updateCarQuery, [car_id], (err) => {
+                     db.disconnectDB();
+                    if (err) {
+                        return callback(err);
+                    }
+                    const bidder = "n";
+                    callback(null, bidder);
+                });
+            });
+        }
+    });
+};
+
+
 const endAuction = (auction_id, callback) => {
     const connection = db.connectDB();
-    
-    const updateAuctionStatus = () => {
-        const updateQuery = "UPDATE `auction_tbl` SET `auction_status` = '終了' WHERE `auction_id` = ?";
-        console.log("auction_id:" + auction_id + " オークション終了");
-
-        connection.query(updateQuery, [auction_id], (err, results) => {
+    const updateQuery = "UPDATE `auction_tbl` SET `auction_status` = '終了' WHERE `auction_id` = ?";
+    console.log("auction_id:" + auction_id + " オークション終了");
+    connection.query(updateQuery, [auction_id], (err, results) => {
+        if (err) {
+            db.disconnectDB();
+            return callback(err);
+        }
+        const query = "SELECT listing_id FROM `listing_tbl` WHERE auction_id = ?";
+        connection.query(query, [auction_id], (err, results) => {
             if (err) {
                 db.disconnectDB();
                 return callback(err);
             }
-
-            processListings();
+            db.disconnectDB();
+            callback(null, results);
         });
-    };
-
-    const processListings = () => {
-        const selectListingQuery = "SELECT listing_id FROM `listing_tbl` WHERE auction_id = ?";
-        connection.query(selectListingQuery, [auction_id], (err, listingResults) => {
-            if (err) {
-                db.disconnectDB();
-                return callback(err);
-            }
-
-            const successfulBids = [];
-
-            const processListing = (index) => {
-                if (index >= listingResults.length) {
-                    db.disconnectDB();
-                    return callback(null, successfulBids);
-                }
-
-                const listing = listingResults[index];
-                const selectBidQuery = "SELECT user_id, bid_amount, bid_datetime FROM `bid_tbl` WHERE listing_id = ? ORDER BY bid_amount DESC LIMIT 1";
-                connection.query(selectBidQuery, [listing.listing_id], (err, bidResults) => {
-                    if (err) {
-                        db.disconnectDB();
-                        return callback(err);
-                    }
-
-                    if (bidResults.length > 0) {
-                        const { user_id, bid_amount, bid_datetime } = bidResults[0];
-                        const insertQuery = "INSERT INTO `successfulbid_tbl` (user_id, listing_id, successfulbid_datetime, successfulbid_amount) VALUES (?, ?, ?, ?)";
-                        connection.query(insertQuery, [user_id, listing.listing_id, bid_datetime, bid_amount], (err, insertResults) => {
-                            if (err) {
-                                db.disconnectDB();
-                                return callback(err);
-                            }
-                            console.log(`auction_id: ${auction_id} listing_id: ${listing.listing_id} の落札処理が完了しました。`);
-                            successfulBids.push({ user_id, listing_id: listing.listing_id, bid_datetime, bid_amount });
-
-                            updateCarStatus(listing.listing_id, () => processListing(index + 1));
-                        });
-                    } else {
-                        processListing(index + 1);
-                    }
-                });
-            };
-            processListing(0);
-        });
-    };
-
-    const updateCarStatus = (listing_id, callback) => {
-        const caridQuery = "SELECT car_id FROM `listing_tbl` WHERE listing_id = ?";
-        connection.query(caridQuery, [listing_id], (err, carResults) => {
-            if (err) {
-                db.disconnectDB();
-                return callback(err);
-            }
-
-            if (carResults.length > 0) {
-                const { car_id } = carResults[0];
-                const carQuery = "UPDATE `car_tbl` SET `car_status` = '落札済' WHERE `car_id` = ?";
-                console.log("car_status:" + car_id + " 落札済に変更");
-
-                connection.query(carQuery, [car_id], (err) => {
-                    if (err) {
-                        db.disconnectDB();
-                        return callback(err);
-                    }
-                    callback();
-                });
-            } else {
-                callback();
-            }
-        });
-    };
-
-    // メイン処理の開始
-    updateAuctionStatus();
+    });
 };
 
 //メール送る関数
-const sendMail = (auction_id, results, callback) => {
-    console.log("送信するデータ:", auction_id, results);
-    const formattedResults = results.map(result => {
-        return {
-            userId: result.user_id,
-            listing_id: result.listing_id,
-            bidDatetime: new Date(result.bid_datetime),
-            bidAmount: result.bid_amount
-        };
-    });
-
-    // formattedResultsが空の場合は処理を終了する
-    if (formattedResults.length === 0) {
-        console.error('入札者がいませんでした。');
-
-        const connection = db.connectDB();
-        const selectListingQuery = "SELECT listing_id FROM `listing_tbl` WHERE auction_id = ?";
-        connection.query(selectListingQuery, [auction_id], (err, listingResults) => {
-            if (err) {
-                db.disconnectDB();
-                return callback(err);
-            }
-
-            const processNoBids = (index) => {
-                if (index >= listingResults.length) {
-                    db.disconnectDB();
-                    return callback();
-                }
-
-                const listing = listingResults[index];
-                const caridQuery = "SELECT car_id FROM `listing_tbl` WHERE listing_id = ?";
-                connection.query(caridQuery, [listing.listing_id], (err, carResults) => {
-                    if (err) {
-                        db.disconnectDB();
-                        return callback(err);
-                    }
-
-                    if (carResults.length > 0) {
-                        const { car_id } = carResults[0];
-                        const carQuery = "UPDATE `car_tbl` SET `car_status` = '在庫あり' WHERE `car_id` = ?";
-                        console.log("car_status:" + car_id + " 在庫ありに変更");
-
-                        connection.query(carQuery, [car_id], (err) => {
-                            if (err) {
-                                db.disconnectDB();
-                                return callback(err);
-                            }
-                            processNoBids(index + 1);
-                        });
-                    } else {
-                        processNoBids(index + 1);
-                    }
-                });
-            };
-            processNoBids(0);
-        });
-
-        return;
-    }
-
-    const nodemailer = require('nodemailer');
+const sendMail = (auction_id, listing_id, callback) => {
 
     // 今日の日付を求める関数
     function formatDate(dateString) {
@@ -193,100 +123,83 @@ const sendMail = (auction_id, results, callback) => {
         const weekday = weekdays[date.getDay()];
         return `${year}/${month}/${day} ${hours}:${minutes} (${weekday})`;
     }
+
     const today = new Date();
-    const formattoday = formatDate(today);
-
     const connection = db.connectDB();
-    const { userId } = formattedResults[0]; // formattedResultsの最初の要素からuserIdを取得
 
-    connection.query('SELECT user_name, mail FROM user_tbl WHERE user_id = ?', [userId], (err, userResults) => {
+    const query = `
+        SELECT u.user_name, u.mail, s.successfulbid_amount, c.car_type, a.start_datetime
+        FROM successfulbid_tbl s
+        JOIN user_tbl u ON s.user_id = u.user_id
+        JOIN listing_tbl l ON s.listing_id = l.listing_id
+        JOIN car_tbl c ON l.car_id = c.car_id
+        JOIN auction_tbl a ON l.auction_id = a.auction_id
+        WHERE s.listing_id = ?
+        ORDER BY s.successfulbid_datetime DESC
+        LIMIT 1;
+    `;
+
+    connection.query(query, [listing_id], (err, results) => {
         if (err) {
-            console.error('ユーザー情報の取得に失敗しました:', err);
-            if (callback) return callback(err);
-            return;
+             db.disconnectDB();
+            return callback(err);
         }
 
-        const { user_name, mail } = userResults[0];
-        connection.query('SELECT start_datetime FROM auction_tbl WHERE auction_id = ?', [auction_id], (err, auctionResults) => {
-            if (err) {
-                console.error('オークション情報の取得に失敗しました:', err);
-                if (callback) return callback(err);
-                return;
-            }
+        if (results.length > 0) {
+            const { user_name, mail, successfulbid_amount, car_type, start_datetime } = results[0];
 
-            const { start_datetime } = auctionResults[0];
-            connection.query('SELECT listing_id, car_id FROM listing_tbl WHERE auction_id = ?', [auction_id], (err, listingResults) => {
-                if (err) {
-                    console.error('リスティング情報の取得に失敗しました:', err);
-                    if (callback) return callback(err);
-                    return;
+            const transporter = nodemailer.createTransport({
+                service: mailservice, // 実際のメールサービスを指定してください
+                auth: {
+                    user: From_Email, // 送信元メールアドレスを指定
+                    pass: Pass   // パスワードを指定
                 }
-
-                const { listing_id, car_id } = listingResults[0];
-                connection.query('SELECT car_type FROM car_tbl WHERE car_id = ?', [car_id], (err, carResults) => {
-                    if (err) {
-                        console.error('車情報の取得に失敗しました:', err);
-                        if (callback) return callback(err);
-                        return;
-                    }
-
-                    const { car_type } = carResults[0];
-
-                    // メール関連
-                    const mailservice = 'gmail';         //メールの種類
-                    const From_Email = 'your-email@gmail.com'; // 送信元メールを入力
-                    const Pass = 'your-app-password';       // アプリパスワードを使用
-
-                    const transporter = nodemailer.createTransport({
-                        service: mailservice,
-                        auth: {
-                            user: From_Email,
-                            pass: Pass
-                        }
-                    });
-
-                    const mailOptions = {
-                        from: From_Email,
-                        to: mail, // 送信先メールアドレス
-                        subject: `HAL自動車オークション ${formatDate(today)} 送信`,
-                        text: `
-                            ${user_name}様
-
-                            おめでとうございます！
-                            ${formatDate(start_datetime)}にて開催されたオークションにおいて「${car_type}」が落札されました。
-
-                            ――――――――――――――――――――――――――――
-                            落札情報
-                            ――――――――――――――――――――――――――――
-
-                            オークションID: ${auction_id}
-                            出品ID: ${listing_id}
-                            車種名: ${car_type}
-                            落札価格: ${formattedResults[0].bidAmount}
-
-                            ――――――――――――――――――――――――――――
-                            お支払い情報
-                            ――――――――――――――――――――――――――――
-                            ～
-                            落札金額と送料を合わせて下記口座までお振込みください。
-                            ～
-                        `
-                    };
-
-                    transporter.sendMail(mailOptions, (error, info) => {
-                        if (error) {
-                            console.error('メール送信に失敗しました:', error);
-                            if (callback) return callback(error);
-                        } else {
-                            console.log('メールが送信されました:', info.response);
-                            if (callback) return callback(null, info.response);
-                        }
-                    });
-                });
             });
-        });
+
+            const mailOptions = {
+                from: From_Email, // 送信元メールアドレスを指定
+                to: mail, // 送信先メールアドレスを指定
+                subject: `HAL自動車オークション ${formatDate(today)} 送信`,
+                text: `
+                    ${user_name}様
+
+                    おめでとうございます！
+                    ${formatDate(start_datetime)}にて開催されたオークションにおいて「${car_type}」が落札されました。
+
+                    ――――――――――――――――――――――――――――
+                    落札情報
+                    ――――――――――――――――――――――――――――
+
+                    オークションID: ${auction_id}
+                    出品ID: ${listing_id}
+                    車種名: ${car_type}
+                    落札価格: ${successfulbid_amount}
+
+                    ――――――――――――――――――――――――――――
+                    お支払い情報
+                    ――――――――――――――――――――――――――――
+                    ～
+                    落札金額と送料を合わせて下記口座までお振込みください。
+                    ～
+                `
+            };
+
+            transporter.sendMail(mailOptions, (error, info) => {
+                if (error) {
+                    console.error('メール送信に失敗しました:', error);
+                     db.disconnectDB(); // データベース接続の終了
+                    return callback(error);
+                } else {
+                    console.log('メールが送信されました:', info.response);
+                     db.disconnectDB(); // データベース接続の終了
+                    return callback(null, info.response);
+                }
+            });
+        } else {
+             db.disconnectDB();
+            return callback(new Error("指定された listing_id に対する落札情報が見つかりませんでした"));
+        }
     });
 };
 
-
-module.exports = { getAuctionEnd, endAuction, sendMail };
+module.exports = { getAuctionEnd, endAuction, successfulbid, sendMail };
