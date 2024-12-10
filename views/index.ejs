@@ -3,84 +3,63 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css" rel="stylesheet">
     <title><%= title %></title>
 </head>
-<body class="bg-gray-100">
+<body class="bg-light">
     <%- include('partials/header') %>
-    <div class="container mx-auto px-4">
-        <div class="grid grid-cols-1 gap-6">
+    <div class="container my-4">
+        <div class="row g-4">
             <% auctionData.forEach(auction => { %>
-                <div class="bg-white rounded-lg shadow-lg p-6">
-                    <!-- <h2 class="text-xl font-semibold mb-4">オークションID: <%= auction.auction_id %></h2> -->
-                    <p class="text-gray-600 mb-2">開始日時: <%= auction.start_datetime %></p>
-                    <p class="text-gray-600 mb-4">終了日時: <%= auction.end_datetime %></p>
-
-                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                    <% if (auction.cars && auction.cars.length > 0) { %>
-                        <% auction.cars.forEach(car => { %>
-                                <div class="space-y-4 flex">
-                                    <div class="border-b px-4 h-48 w-48">
+                <div class="col-sm-12 col-md-6 col-lg-4">
+                    <div class="card h-100 shadow-sm">
+                        <div class="card-header bg-primary text-white">
+                            <h5 class="card-title mb-0">オークションID: <%= auction.auction_id %></h5>
+                        </div>
+                        <div class="card-body">
+                            <p class="card-text text-muted">開始日時: <%= auction.start_datetime %></p>
+                            <p class="card-text text-muted">終了日時: <%= auction.end_datetime %></p>
+                            <% if (auction.cars && auction.cars.length > 0) { %>
+                                <% auction.cars.forEach(car => { %>
+                                    <div class="mb-3 border-bottom pb-3">
                                         <% if (car.car_image) { %>
-                                            <div class="flex justify-center">
-                                                <img src="<%= car.car_image %>" alt="<%= car.car_type %>" class="w-48 h-48 object-cover rounded-lg">
-                                            </div>
+                                            <img src="<%= car.car_image %>" alt="<%= car.car_type %>" class="img-fluid rounded mb-3">
                                         <% } else { %>
-                                            <div class="w-48 h-48 bg-gray-300 flex items-center justify-center rounded-lg mb-4">
-                                                <p class="text-gray-500 text-sm">画像なし</p>
+                                            <div class="bg-secondary text-white text-center py-5 rounded mb-3">
+                                                画像なし
                                             </div>
                                         <% } %>
-                                    </div>
-                                    <div class="block">
-                                        <table class="table-auto">
-                                            <tbody>
-                                                <tr>
-                                                    <td class="border px-4">車種</td>
-                                                    <td class="border px-4"><%= car.car_type %></td>
-                                                </tr>
-                                                <tr>
-                                                    <td class="border px-4">メーカー</td>
-                                                    <td class="border px-4"><%= car.car_manufacturer %></td>
-                                                </tr>
-                                                <tr>
-                                                    <td class="border px-4">価格</td>
-                                                    <td class="border px-4"><%= car.current_price %>円</td>
-                                                </tr>
-                                                <tr>
-                                                    <td class="border px-4">年数</td>
-                                                    <td class="border px-4"><%= car.car_year %>年</td>
-                                                </tr>
-                                                <tr>
-                                                    <td class="border px-4">走行距離</td>
-                                                    <td class="border px-4"><%= car.car_mileage %></td>
-                                                </tr>
-                                                <tr>
-                                                    <td class="border px-4">色</td>
-                                                    <td class="border px-4"><%= car.car_color %></td>
-                                                </tr>
-                                            </tbody>
-                                        </table>
-                                        <form action="/bid" method="get" class="text-center">
+                                        <ul class="list-unstyled">
+                                            <li><strong>車種:</strong> <%= car.car_type %></li>
+                                            <li><strong>メーカー:</strong> <%= car.manufacturer_name %></li>
+                                            <li><strong>価格:</strong> <%= car.current_price %>円</li>
+                                            <li><strong>年数:</strong> <%= car.car_year %>年</li>
+                                            <li><strong>走行距離:</strong> <%= car.car_mileage %></li>
+                                            <li><strong>色:</strong> <%= car.car_color %></li>
+                                        </ul>
+                                        <form action="/bid" method="get" class="text-center mt-3">
                                             <input type="hidden" name="car_id" value="<%= car.car_id %>">
                                             <input type="hidden" name="listing_id" value="<%= car.listing_id %>">
                                             <input type="hidden" name="auction_id" value="<%= auction.auction_id %>">
                                             <input type="hidden" name="end_datetime" value="<%= auction.end_datetime %>">
-                                            <button class="bg-blue-500 hover:bg-blue-600 text-white font-bold px-4 rounded shadow-md transition duration-300">
+                                            <button class="btn btn-primary w-100">
                                                 入札
                                             </button>
                                         </form>
                                     </div>
-                                </div>
-                        <% }); %>
-                    <% } else { %>
-                        <p class="text-red-500">車情報はありません</p>
-                    <% } %>
+                                <% }); %>
+                            <% } else { %>
+                                <p class="text-danger">車情報はありません</p>
+                            <% } %>
+                        </div>
                     </div>
                 </div>
             <% }); %>
         </div>
         <% if (auctionData.length === 0) { %>
-            <p class="text-center text-lg text-gray-700">現在、車情報が登録されていないオークションはありません。</p>
+            <div class="text-center py-5">
+                <p class="text-muted fs-4">現在、車情報が登録されていないオークションはありません。</p>
+            </div>
         <% } %>
     </div>
     <%- include('partials/footer') %>

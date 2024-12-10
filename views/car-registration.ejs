@@ -31,7 +31,11 @@
                     <!-- メーカー名 -->
                     <div class="form-group">
                         <label for="car_manufacturer">メーカー名</label>
-                        <input type="text" id="car_manufacturer" name="car_manufacturer" class="form-input" required>
+                        <select id="car_manufacturer" name="car_manufacturer" class="form-input" required>
+                            <% manufacturers.forEach(manufacturer => { %>
+                                <option value="<%= manufacturer.manufacturer_id %>"><%= manufacturer.manufacturer_name %></option>
+                            <% }) %>
+                        </select>
                     </div>
 
                     <!-- 年式 -->

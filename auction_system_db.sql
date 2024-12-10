@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- ホスト: 127.0.0.1
--- 生成日時: 2024-12-05 03:34:30
+-- 生成日時: 2024-12-09 03:19:26
 -- サーバのバージョン： 10.4.25-MariaDB
 -- PHP のバージョン: 8.1.10
 
@@ -40,7 +40,8 @@ CREATE TABLE `auction_tbl` (
 --
 
 INSERT INTO `auction_tbl` (`auction_id`, `start_datetime`, `end_datetime`, `auction_status`, `employee_id`) VALUES
-(25, '2024-11-26 22:44:00.000000', '2024-12-06 22:44:00.000000', '開催中', 1);
+(25, '2024-11-26 22:44:00.000000', '2024-12-06 22:44:00.000000', '終了', 1),
+(32, '2024-12-08 18:47:00.000000', '2024-12-09 18:47:00.000000', '開催中', 10);
 
 -- --------------------------------------------------------
 
@@ -56,6 +57,13 @@ CREATE TABLE `bid_tbl` (
   `bid_amount` int(10) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
+--
+-- テーブルのデータのダンプ `bid_tbl`
+--
+
+INSERT INTO `bid_tbl` (`bid_id`, `user_id`, `listing_id`, `bid_datetime`, `bid_amount`) VALUES
+(3, 1, 27, '2024-12-08 18:54:12.705000', 150000);
+
 -- --------------------------------------------------------
 
 --
@@ -65,9 +73,9 @@ CREATE TABLE `bid_tbl` (
 CREATE TABLE `car_tbl` (
   `car_id` int(5) NOT NULL,
   `car_type` varchar(20) NOT NULL,
-  `car_manufacturer` varchar(50) NOT NULL,
+  `manufacturer_id` int(5) NOT NULL,
   `car_year` year(4) NOT NULL,
-  `car_mileage` varchar(11) NOT NULL,
+  `car_mileage` int(10) NOT NULL,
   `car_color` varchar(20) NOT NULL,
   `car_image` varchar(255) NOT NULL,
   `purchase_date` date DEFAULT NULL,
@@ -79,18 +87,18 @@ CREATE TABLE `car_tbl` (
 -- テーブルのデータのダンプ `car_tbl`
 --
 
-INSERT INTO `car_tbl` (`car_id`, `car_type`, `car_manufacturer`, `car_year`, `car_mileage`, `car_color`, `car_image`, `purchase_date`, `car_status`, `employee_id`) VALUES
-(1, 'セレナ', '日産', 2008, '7.4万km', 'シルバー', '/resources/car-images/1732608807522_serena.webp', '2024-07-31', '出品中', 11),
-(2, 'アルファード', 'トヨタ', 2002, '12.7万km', 'ブラック', '/resources/car-images/alphard.jpg', '2024-08-06', '出品中', 12),
-(3, 'LC500パッケージ', 'レクサス', 2021, '4.7万km', 'ホワイト', '/resources/car-images/LC500.jpg', '2024-08-06', '出品中', 13),
-(4, 'シビック タイプR', 'ホンダ', 2018, '2.9万km', 'ホワイト', '/resources/car-images/sibiku.jpg', '2024-08-07', '出品中', 14),
-(5, 'エクシーガ2.0GT', 'スバル', 2008, '18.8万km', 'ブラック', '/resources/car-images/exiga.jpg', '2024-08-07', '出品中', 15),
-(6, 'ロードスター S', 'マツダ', 2019, '6.9万km', 'ホワイト', '/resources/car-images/roadstar.jpg', '2024-08-08', '出品中', 11),
-(7, 'アウトランダー', '三菱', 2022, '2万km', 'ブラック', '/resources/car-images/out.jpg', '2024-08-08', '出品中', 12),
-(8, 'ムーブ L SA', 'ダイハツ', 2013, '14.1万km', 'シルバー', '/resources/car-images/move.jpg', '2024-08-11', '出品中', 13),
-(12, 'CX-5', 'ホンダ', 2017, '7.8万km', 'レッド', '/resources/car-images/1732677580042_CX-5.jpg', NULL, '在庫あり', NULL),
-(13, 'リーフ', '日産', 2022, '1.2万km', 'ホワイト', '/resources/car-images/1732700918438_ãªã¼ã.jpg', NULL, '在庫あり', NULL),
-(14, 'アウトバック', 'スバル', 2021, '1.5万km', 'カーキ', '/resources/car-images/1732769983253_ã¢ã¦ãããã¯.jpg', NULL, '在庫あり', NULL);
+INSERT INTO `car_tbl` (`car_id`, `car_type`, `manufacturer_id`, `car_year`, `car_mileage`, `car_color`, `car_image`, `purchase_date`, `car_status`, `employee_id`) VALUES
+(1, 'セレナ', 3, 2008, 74000, 'シルバー', '/resources/car-images/1732608807522_serena.webp', '2024-07-31', '出品中', 11),
+(2, 'アルファード', 1, 2002, 127000, 'ブラック', '/resources/car-images/alphard.jpg', '2024-08-06', '在庫あり', 12),
+(3, 'LC500パッケージ', 2, 2021, 47000, 'ホワイト', '/resources/car-images/LC500.jpg', '2024-08-06', '在庫あり', 13),
+(4, 'シビック タイプR', 4, 2018, 29000, 'ホワイト', '/resources/car-images/sibiku.jpg', '2024-08-07', '在庫あり', 14),
+(5, 'エクシーガ2.0GT', 6, 2008, 188000, 'ブラック', '/resources/car-images/exiga.jpg', '2024-08-07', '在庫あり', 15),
+(6, 'ロードスター S', 5, 2019, 60000, 'ホワイト', '/resources/car-images/roadstar.jpg', '2024-08-08', '在庫あり', 11),
+(7, 'アウトランダー', 8, 2022, 20000, 'ブラック', '/resources/car-images/out.jpg', '2024-08-08', '在庫あり', 12),
+(8, 'ムーブ L SA', 9, 2013, 14000, 'シルバー', '/resources/car-images/move.jpg', '2024-08-11', '在庫あり', 13),
+(12, 'CX-5', 4, 2017, 70000, 'レッド', '/resources/car-images/1732677580042_CX-5.jpg', '2024-11-01', '在庫あり', 11),
+(13, 'リーフ', 3, 2022, 12000, 'ホワイト', '/resources/car-images/1732700918438_ãªã¼ã.jpg', NULL, '在庫あり', NULL),
+(14, 'アウトバック', 6, 2021, 15000, 'カーキ', '/resources/car-images/1732769983253_ã¢ã¦ãããã¯.jpg', NULL, '在庫あり', NULL);
 
 -- --------------------------------------------------------
 
@@ -150,14 +158,7 @@ CREATE TABLE `listing_tbl` (
 --
 
 INSERT INTO `listing_tbl` (`listing_id`, `car_id`, `starting_price`, `ending_price`, `current_price`, `auction_id`) VALUES
-(1, 1, 100000, 150000, 150000, 25),
-(2, 2, 200000, 250000, 250000, 25),
-(3, 3, 150000, 180000, 180000, 25),
-(4, 4, 300000, 350000, 350000, 25),
-(5, 5, 250000, 300000, 300000, 25),
-(6, 6, 180000, 230000, 230000, 25),
-(7, 7, 220000, 270000, 270000, 25),
-(8, 8, 270000, 320000, 320000, 25);
+(27, 1, 100000, 0, 150000, 32);
 
 -- --------------------------------------------------------
 
@@ -175,17 +176,28 @@ CREATE TABLE `manufacturer_tbl` (
 --
 
 INSERT INTO `manufacturer_tbl` (`manufacturer_id`, `manufacturer_name`) VALUES
-(1, '日産'),
-(2, 'トヨタ'),
-(3, 'レクサス'),
+(1, 'トヨタ'),
+(2, 'レクサス'),
+(3, '日産'),
 (4, 'ホンダ'),
-(5, 'スバル'),
-(6, 'マツダ'),
-(7, '三菱'),
-(8, 'ダイハツ'),
-(9, 'BMW'),
-(10, 'メルセデス'),
-(11, 'スズキ');
+(5, 'マツダ'),
+(6, 'スバル'),
+(7, 'スズキ'),
+(8, '三菱'),
+(9, 'ダイハツ'),
+(10, 'メルセデス・ベンツ'),
+(11, 'BMW'),
+(12, 'フォルクスワーゲン'),
+(13, 'アウディ'),
+(14, 'ポルシェ'),
+(15, 'ミニ'),
+(16, 'ジープ'),
+(17, 'アルファロメオ'),
+(18, 'フィアット'),
+(19, 'ルノー'),
+(20, 'ランドローバー'),
+(21, 'アバルト'),
+(22, 'テスラ');
 
 -- --------------------------------------------------------
 
@@ -267,7 +279,7 @@ ALTER TABLE `bid_tbl`
 ALTER TABLE `car_tbl`
   ADD PRIMARY KEY (`car_id`),
   ADD KEY `fk_employee_id` (`employee_id`),
-  ADD KEY `manufacturer_id` (`car_manufacturer`);
+  ADD KEY `manufacturer_id` (`manufacturer_id`);
 
 --
 -- テーブルのインデックス `employee_tbl`
@@ -312,13 +324,13 @@ ALTER TABLE `user_tbl`
 -- テーブルの AUTO_INCREMENT `auction_tbl`
 --
 ALTER TABLE `auction_tbl`
-  MODIFY `auction_id` int(5) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=30;
+  MODIFY `auction_id` int(5) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=33;
 
 --
 -- テーブルの AUTO_INCREMENT `bid_tbl`
 --
 ALTER TABLE `bid_tbl`
-  MODIFY `bid_id` int(5) NOT NULL AUTO_INCREMENT;
+  MODIFY `bid_id` int(5) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
 -- テーブルの AUTO_INCREMENT `car_tbl`
@@ -336,19 +348,19 @@ ALTER TABLE `employee_tbl`
 -- テーブルの AUTO_INCREMENT `listing_tbl`
 --
 ALTER TABLE `listing_tbl`
-  MODIFY `listing_id` int(5) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=24;
+  MODIFY `listing_id` int(5) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=28;
 
 --
 -- テーブルの AUTO_INCREMENT `manufacturer_tbl`
 --
 ALTER TABLE `manufacturer_tbl`
-  MODIFY `manufacturer_id` int(5) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=12;
+  MODIFY `manufacturer_id` int(5) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=216;
 
 --
 -- テーブルの AUTO_INCREMENT `successfulbid_tbl`
 --
 ALTER TABLE `successfulbid_tbl`
-  MODIFY `successfulbid_id` int(5) NOT NULL AUTO_INCREMENT;
+  MODIFY `successfulbid_id` int(5) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
 -- テーブルの AUTO_INCREMENT `user_tbl`
@@ -377,7 +389,8 @@ ALTER TABLE `bid_tbl`
 -- テーブルの制約 `car_tbl`
 --
 ALTER TABLE `car_tbl`
-  ADD CONSTRAINT `car_tbl_ibfk_1` FOREIGN KEY (`employee_id`) REFERENCES `employee_tbl` (`employee_id`);
+  ADD CONSTRAINT `car_tbl_ibfk_1` FOREIGN KEY (`employee_id`) REFERENCES `employee_tbl` (`employee_id`),
+  ADD CONSTRAINT `car_tbl_ibfk_2` FOREIGN KEY (`manufacturer_id`) REFERENCES `manufacturer_tbl` (`manufacturer_id`);
 
 --
 -- テーブルの制約 `listing_tbl`
