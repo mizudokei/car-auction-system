@@ -35,14 +35,12 @@ const initializeServer = () => {
                     } else {
                         console.log(`オークションID ${auction.auction_id} の終了処理が成功しました:`, results);
                         results.forEach((result) => {
-                            auctionEnd.successfulbid(result.listing_id, (err, bidder) => {
+                            auctionEnd.successfulbid(result.listing_id, (err, bidder) => {//落札処理
                                 if (err) {
                                     console.error(`オークションID ${auction.auction_id}, リスティングID ${result.listing_id} の落札処理でエラーが発生しました:`, err);
                                 } else {
-                                    console.log(`オークションID ${auction.auction_id}, リスティングID ${result.listing_id} の落札処理が成功しました`);
-                            
-                                    if (bidder === "y") { 
-                                        auctionEnd.sendMail(auction.auction_id, result.listing_id, (err) => {
+                                    if (bidder === "y") { //落札者がいるか
+                                        auctionEnd.sendMail(auction.auction_id, result.listing_id, (err) => {//メール送信
                                             if (err) {
                                                 console.error(`オークションID ${auction.auction_id}, リスティングID ${result.listing_id} のメール送信でエラーが発生しました:`, err);
                                             } else {

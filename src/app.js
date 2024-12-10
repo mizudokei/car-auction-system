@@ -42,9 +42,7 @@ const initializeServer = () => {
                                 if (err) {
                                     console.error(`オークションID ${auction.auction_id}, リスティングID ${result.listing_id} の落札処理でエラーが発生しました:`, err);
                                 } else {
-                                    console.log(`オークションID ${auction.auction_id}, リスティングID ${result.listing_id} の落札処理が成功しました`);
-                            
-                                    if (bidder === "y") { 
+                                    if (bidder === "y") { //落札者がいるか
                                         auctionEnd.sendMail(auction.auction_id, result.listing_id, (err) => {//メール送信
                                             if (err) {
                                                 console.error(`オークションID ${auction.auction_id}, リスティングID ${result.listing_id} のメール送信でエラーが発生しました:`, err);
@@ -128,6 +126,7 @@ app.get('/bid', (req, res) => {
                     listing_id: listingId, 
                     carDetails: carDetails, 
                     current_price: currentPrice + 10000, //最低入札額を現在価格+10000としている
+                    now_price: currentPrice,//現在価格
                     end_datetime: auctionend, 
                     time_remaining: timeRemaining,
                     bid_details: bidDetails,

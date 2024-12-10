@@ -31,16 +31,16 @@ const successfulbid = (listing_id, callback) => {
     const selectBidQuery = "SELECT user_id, bid_amount, bid_datetime FROM `bid_tbl` WHERE listing_id = ? ORDER BY bid_amount DESC LIMIT 1";
     connection.query(selectBidQuery, [listing_id], (err, bidResults) => {
         if (err) {
-             db.disconnectDB();
+            db.disconnectDB();
             return callback(err);
         }
 
-        if (bidResults.length > 0) {
+        if (bidResults.length > 0) { // 落札者がいる場合
             const { user_id, bid_amount, bid_datetime } = bidResults[0];
             const insertQuery = "INSERT INTO `successfulbid_tbl` (user_id, listing_id, successfulbid_datetime, successfulbid_amount) VALUES (?, ?, ?, ?)";
             connection.query(insertQuery, [user_id, listing_id, bid_datetime, bid_amount], (err, insertResults) => {
                 if (err) {
-                     db.disconnectDB();
+                    db.disconnectDB();
                     return callback(err);
                 }
                 console.log(`listing_id: ${listing_id} の落札処理が完了しました。`);
@@ -48,37 +48,38 @@ const successfulbid = (listing_id, callback) => {
                 const carIdQuery = 'SELECT car_id FROM `listing_tbl` WHERE listing_id = ?';
                 connection.query(carIdQuery, [listing_id], (err, carResults) => {
                     if (err) {
-                         db.disconnectDB();
+                        db.disconnectDB();
                         return callback(err);
                     }
                     const car_id = carResults[0].car_id;
-                    const updateCarQuery = "UPDATE `car_tbl` SET `car_status` = '落札済' WHERE `car_id` = ?;";
+                    const updateCarQuery = "UPDATE `car_tbl` SET `car_status` = '落札済' WHERE `car_id` = ?";
                     connection.query(updateCarQuery, [car_id], (err) => {
-                         db.disconnectDB();
                         if (err) {
+                            db.disconnectDB();
                             return callback(err);
                         }
-                        const bidder = "y";
+                        const bidder = "y"; // 落札者がいた
+                        db.disconnectDB();
                         callback(null, bidder);
                     });
                 });
             });
-        } else {
+        } else { // 落札者がいない場合
             console.log(`listing_id: ${listing_id} に対する入札者がいませんでした`);
             const carIdQuery = 'SELECT car_id FROM `listing_tbl` WHERE listing_id = ?';
             connection.query(carIdQuery, [listing_id], (err, carResults) => {
                 if (err) {
-                     db.disconnectDB();
+                    db.disconnectDB();
                     return callback(err);
                 }
                 const car_id = carResults[0].car_id;
-                const updateCarQuery = "UPDATE `car_tbl` SET `car_status` = '在庫あり' WHERE `car_id` = ?;";
+                const updateCarQuery = "UPDATE `car_tbl` SET `car_status` = '在庫あり' WHERE `car_id` = ?";
                 connection.query(updateCarQuery, [car_id], (err) => {
-                     db.disconnectDB();
                     if (err) {
+                        db.disconnectDB();
                         return callback(err);
                     }
-                    const bidder = "n";
+                    const bidder = "n"; // 落札者がいない
                     callback(null, bidder);
                 });
             });
@@ -86,17 +87,16 @@ const successfulbid = (listing_id, callback) => {
     });
 };
 
-
 const endAuction = (auction_id, callback) => {
     const connection = db.connectDB();
-    const updateQuery = "UPDATE `auction_tbl` SET `auction_status` = '終了' WHERE `auction_id` = ?";
+    const updateQuery = "UPDATE `auction_tbl` SET `auction_status` = '終了' WHERE `auction_id` = ?";//対象オークションを終了
     console.log("auction_id:" + auction_id + " オークション終了");
     connection.query(updateQuery, [auction_id], (err, results) => {
         if (err) {
             db.disconnectDB();
             return callback(err);
         }
-        const query = "SELECT listing_id FROM `listing_tbl` WHERE auction_id = ?";
+        const query = "SELECT listing_id FROM `listing_tbl` WHERE auction_id = ?";//終了したオークションの出品車両を取得
         connection.query(query, [auction_id], (err, results) => {
             if (err) {
                 db.disconnectDB();
@@ -190,7 +190,7 @@ const sendMail = (auction_id, listing_id, callback) => {
                      db.disconnectDB(); // データベース接続の終了
                     return callback(error);
                 } else {
-                    console.log('メールが送信されました:', info.response);
+                    // console.log('メールが送信されました:', info.response);
                      db.disconnectDB(); // データベース接続の終了
                     return callback(null, info.response);
                 }
