@@ -391,6 +391,9 @@ app.post('/update-user', (req, res) => {
 });
 
 app.get('/mypage', (req, res) => {
+    if (!req.session.user) {
+        return res.redirect('/login'); // ログインしていない場合はログイン画面へリダイレクト
+    }
     const userId = req.session.user.user_id;
     mypage.getbit(userId, (err, bit) => {
         if (err) {
@@ -400,10 +403,16 @@ app.get('/mypage', (req, res) => {
             if (err) {
                 console.error(err);
             }
-            res.render('mypage', { user: userId, bit: bit, successfulbid: successfulbid, title: '入落札履歴' });
-        })
+            res.render('mypage', { 
+                user: req.session.user, // セッションの完全なuserオブジェクトを渡す
+                bit: bit, 
+                successfulbid: successfulbid, 
+                title: '入落札履歴' 
+            });
+        });
     });
 });
+
 
 // パール送信関数
 function sendPasswordResetEmail(email) {
