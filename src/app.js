@@ -4,6 +4,7 @@ const db = require('./modules/db');
 const auctionService = require('./modules/auctionService');
 const bidQueries = require('./modules/bidQueries');
 const auctionEnd = require('./modules/auctionEnd');
+const mypage = require('./modules/mypage');
 const path = require('path');
 const mysql = require('mysql');
 const { title } = require('process');
@@ -101,7 +102,7 @@ app.get('/bid', (req, res) => {
 
     let timeRemaining = `${daysDiff}日 ${hoursDiff}時間 ${minutesDiff}分 ${secondsDiff}秒`;
 
-    bidQueries.getCarDetails(carId, (err, carDetails) => {
+    bidQueries.getCarDetails(listingId, (err, carDetails) => {
         if (err) {
             console.error("車データの取得エラー:", err);
             return res.status(500).send("データの取得に失敗しました");
@@ -120,6 +121,7 @@ app.get('/bid', (req, res) => {
                 if(timeDiff < 0){
                     timeRemaining = "オークション終了"
                 }
+                
                 res.render('bid', { 
                     auction_id: auctionId, 
                     car_id: carId, 
@@ -244,6 +246,24 @@ app.get('/confirmbid', (req, res) => {
     });
 });
 
+//マイページ
+app.get('/mypage', (req, res) => {
+    if (!req.session.user) {
+        return res.redirect('/login'); // ログインページへ
+    }
+    const userId = req.session.user.user_id;
+    mypage.getbit(userId, (err, bit) => {
+        if (err) {
+            console.error(err);
+        }
+        mypage.getsuccessfulbid(userId, (err, successfulbid) => {
+            if (err) {
+                console.error(err);
+            }
+            res.render('mypage', { user: userId, bit: bit, successfulbid: successfulbid, title: 'マイページ' });
+        })
+    });
+});
 
 app.listen(3000, () => {
     console.log('Server is running on http://localhost:3000');
