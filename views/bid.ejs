@@ -89,24 +89,31 @@
                                     </tr>
                                 </tbody>
                             </table>
-                            <form action="/submit-bid" method="get" class="mt-4">
-                                <div class="mb-3">
-                                    <label for="bidAmount" class="form-label">入札額</label>
-                                    <div class="input-group">
-                                        <button type="button" class="btn btn-secondary" onclick="decrementValue('bidAmount', 10000)">-10000</button>
-                                        <input type="number" id="bidAmount" name="bidAmount" class="form-control text-center" min="<%= current_price %>" value="<%= current_price %>" required>
-                                        <button type="button" class="btn btn-secondary" onclick="incrementValue('bidAmount', 10000)">+10000</button>
+                        <% if (time_remaining != "オークション終了") { %>
+                                <form action="/submit-bid" method="get" class="mt-4">
+                                    <div class="mb-3">
+                                        <label for="bidAmount" class="form-label">入札額</label>
+                                        <div class="input-group">
+                                            <button type="button" class="btn btn-secondary" onclick="decrementValue('bidAmount', 10000)">-10000</button>
+                                            <input type="number" id="bidAmount" name="bidAmount" class="form-control text-center" min="<%= current_price %>" value="<%= current_price %>" required>
+                                            <button type="button" class="btn btn-secondary" onclick="incrementValue('bidAmount', 10000)">+10000</button>
+                                        </div>
                                     </div>
-                                </div>
-                                <input type="hidden" name="auction_id" value="<%= auction_id %>">
-                                <input type="hidden" name="car_id" value="<%= car_id %>">
-                                <input type="hidden" name="listing_id" value="<%= listing_id %>">
-                                <input type="hidden" name="end_datetime" value="<%= end_datetime %>">
-                                <div class="d-flex justify-content-between align-items-center">
-                                    <span id="timeRemaining" class="text-danger fw-bold"></span>
-                                    <button type="submit" class="btn btn-primary">入札する</button>
-                                </div>
-                            </form>
+                                    <input type="hidden" name="auction_id" value="<%= auction_id %>">
+                                    <input type="hidden" name="car_id" value="<%= car_id %>">
+                                    <input type="hidden" name="listing_id" value="<%= listing_id %>">
+                                    <input type="hidden" name="end_datetime" value="<%= end_datetime %>">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <span id="timeRemaining" class="text-danger fw-bold"><%= time_remaining %></span>
+                                        <button type="submit" class="btn btn-primary">入札する</button>
+                                    </div>
+                                </form>
+                        <% } %>
+                        <% if (time_remaining = "オークション終了") { %>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <span id="timeRemaining" class="text-danger fw-bold"><%= time_remaining %></span>
+                            </div>
+                        <% } %>
                         </div>
                     </div>
                 </div>

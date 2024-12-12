@@ -4,6 +4,7 @@ const db = require('./modules/db');
 const auctionService = require('./modules/auctionService');
 const bidQueries = require('./modules/bidQueries');
 const auctionEnd = require('./modules/auctionEnd');
+const mypage = require('./modules/mypage');
 const path = require('path');
 const mysql = require('mysql');
 const { title } = require('process');
@@ -31,8 +32,14 @@ const initializeServer = () => {
         AuctionEnd.forEach(auction => {
             const endDate = new Date(auction.end_datetime);
             const currentDate = new Date();
-            const timeDiff = endDate - currentDate;
+            let timeDiff = endDate - currentDate;
             console.log(`オークションID: ${auction.auction_id}, 残り時間: ${timeDiff}`);
+
+            // timeDiff に最大値を設定
+            const maxTimeout = 2147483647; // 32ビット符号付き整数の最大値（約24.8日）
+            if (timeDiff > maxTimeout) {
+                timeDiff = maxTimeout;
+            }
 
             setTimeout(() => {
                 auctionEnd.endAuction(auction.auction_id, (err, results) => {//オークションを終了。終了したオークションのlisting_idを取得
@@ -64,6 +71,12 @@ const initializeServer = () => {
     });
 };
 initializeServer();
+function hourCycle() {
+    initializeServer();
+}
+// 一時間ごとに hourCycle 関数を実行
+setInterval(hourCycle, 3600000);
+
 
 app.use(session({
     secret: 'ihiw03_secret_key',
@@ -104,7 +117,7 @@ app.get('/bid', (req, res) => {
 
     let timeRemaining = `${daysDiff}日 ${hoursDiff}時間 ${minutesDiff}分 ${secondsDiff}秒`;
 
-    bidQueries.getCarDetails(carId, (err, carDetails) => {
+    bidQueries.getCarDetails(listingId, (err, carDetails) => {
         if (err) {
             console.error("車データの取得エラー:", err);
             return res.status(500).send("データの取得に失敗しました");
@@ -123,6 +136,7 @@ app.get('/bid', (req, res) => {
                 if(timeDiff < 0){
                     timeRemaining = "オークション終了"
                 }
+                
                 res.render('bid', { 
                     auction_id: auctionId, 
                     car_id: carId, 
@@ -373,6 +387,21 @@ app.post('/update-user', (req, res) => {
         }
         req.session.user.user_name = user_name; // セッションのユーザー名を更新
         res.redirect('/user-info'); // ユーザー情報画面へリダイレクト
+    });
+});
+
+app.get('/mypage', (req, res) => {
+    const userId = req.session.user.user_id;
+    mypage.getbit(userId, (err, bit) => {
+        if (err) {
+            console.error(err);
+        }
+        mypage.getsuccessfulbid(userId, (err, successfulbid) => {
+            if (err) {
+                console.error(err);
+            }
+            res.render('mypage', { user: userId, bit: bit, successfulbid: successfulbid, title: '入落札履歴' });
+        })
     });
 });
 

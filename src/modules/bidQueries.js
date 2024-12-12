@@ -1,15 +1,16 @@
 const db = require('./db');
 
-const getCarDetails = (carId, callback) => {
+const getCarDetails = (listingId, callback) => {
     const connection = db.connectDB();
     const query = `
         SELECT c.*, m.manufacturer_name 
         FROM car_tbl c
+        JOIN listing_tbl l ON c.car_id = l.car_id
         JOIN manufacturer_tbl m ON c.manufacturer_id = m.manufacturer_id
-        WHERE c.car_id = ?;
+        WHERE l.listing_id = ?;
     `;
     
-    connection.query(query, [carId], (err, results) => {
+    connection.query(query, [listingId], (err, results) => {
         db.disconnectDB();
         if (err) {
             return callback(err);

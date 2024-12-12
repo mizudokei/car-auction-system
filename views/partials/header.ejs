@@ -3,6 +3,11 @@
 <header>
     <a href="/"><h1><img src="/resources/透過ロゴ.png" alt=""></h1></a>
     <nav>
+        <% if (user) { %>
+            <form action="mypage" method="get">
+                <button>マイページ</button>
+            </form>
+        <% } %>
         <% if (!user) { %>
             <a href="/signup"><button>会員登録</button></a>
             <a href="/login"><button>ログイン</button></a>
