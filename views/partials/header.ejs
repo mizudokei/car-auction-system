@@ -6,6 +6,8 @@
         <% if (!user) { %>
             <a href="/signup"><button>会員登録</button></a>
             <a href="/login"><button>ログイン</button></a>
+        <% } else {%>
+            <a href="/user-info">ユーザー情報</a>
         <% } %>
     </nav>
 </header>

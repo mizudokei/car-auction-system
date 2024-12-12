@@ -1,0 +1,94 @@
+<div class="d-flex flex-column flex-shrink-0 p-3 bg-light" style="width: 280px;">
+	<a href="/" class="d-flex align-items-center mb-3 mb-md-0 me-md-auto text-dark text-decoration-none">
+		<h1><img src="/resources/透過ロゴ.png" alt="" style="height: 40px;"></h1>
+	</a>
+	<hr>
+	<div class="mb-3">
+		<% if (!user) { %>
+			<div class="d-flex justify-content-between">
+				<a href="/signup" class="btn btn-primary me-2">会員登録</a>
+				<a href="/login" class="btn btn-secondary">ログイン</a>
+			</div>
+		<% } else { %>
+			<p class="text-dark">ようこそ、<strong><%= user.user_name %></strong> 様</p>
+		<% } %>
+	</div>
+    <hr>
+	<ul class="nav nav-pills flex-column mb-auto">
+		<li class="nav-item">
+			<a href="/" class="nav-link text-dark d-flex align-items-center" id="auction-link">
+                <img src="/resources/mingcute_car-3-fill.svg" alt="" class="me-2">
+                オークション
+            </a>
+		</li>
+        <% if (user) { %>
+            <hr>
+            <li>
+                <a class="nav-link text-dark d-flex align-items-center justify-content-between" data-bs-toggle="collapse" href="#mypage-collapse" role="button" aria-expanded="false" aria-controls="mypage-collapse">
+                    <div class="d-flex align-items-center">
+                        <img src="/resources/basil_user-solid.svg" alt="" class="me-2">                    
+                        マイページ
+                    </div>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-chevron-down transition" id="mypage-arrow" viewBox="0 0 16 16">
+                        <path fill-rule="evenodd" d="M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z"/>
+                    </svg>
+                </a>
+                    <div class="collapse" id="mypage-collapse" data-bs-parent="ul">
+                    <ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small">
+                        <li><a href="/user-info" class="nav-link text-dark" id="user-info-link">会員情報</a></li>
+                        <li><a href="/bidding-history" class="nav-link text-dark">入札履歴</a></li>
+                        <li><a href="/winning-history" class="nav-link text-dark">落札履歴</a></li>
+                    </ul>
+                </div>
+            </li>
+        <% } %>
+	</ul>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const arrow = document.querySelector('#mypage-arrow');
+        const mypageCollapse = document.querySelector('#mypage-collapse');
+        const currentPath = window.location.pathname;
+
+        // 現在のページに応じてリンクにクラスを追加
+        if (currentPath === '/') {
+            document.getElementById('auction-link').classList.add('active');
+        } else if (currentPath === '/user-info') {
+            document.getElementById('user-info-link').classList.add('active');
+            mypageCollapse.classList.add('show'); // マイページを展開
+        }
+
+        mypageCollapse.addEventListener('show.bs.collapse', () => {
+            arrow.classList.add('rotate');
+        });
+
+        mypageCollapse.addEventListener('hide.bs.collapse', () => {
+            arrow.classList.remove('rotate');
+        });
+    });
+</script>
+
+<style>
+    .transition {
+        transition: transform 0.3s ease;
+    }
+
+    .rotate {
+        transform: rotate(180deg);
+    }
+
+    .nav-link img {
+        width: 24px;
+        height: 24px;
+    }
+
+    .me-2 {
+        margin-right: 8px;
+    }
+
+    .nav-link.active {
+        background-color: #007bff; /* アクティブなリンクの背景色 */
+        color: white; /* アクティブなリンクの文字色 */
+    }
+</style>

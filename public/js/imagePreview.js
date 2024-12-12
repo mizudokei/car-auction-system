@@ -3,8 +3,8 @@ document.addEventListener('DOMContentLoaded', function() {
     const imagePreview = document.querySelector('.car-image-preview');
     const defaultImage = '/resources/demo.png'; // デフォルト画像のパス
 
-    // 初期状態でデフォルト画像を表示
-    imagePreview.src = defaultImage;
+    // 初期状態で現在登録されている車両画像を表示
+    imagePreview.src = imagePreview.src || defaultImage;
 
     imageInput.addEventListener('change', function(event) {
         const file = event.target.files[0];
@@ -15,8 +15,8 @@ document.addEventListener('DOMContentLoaded', function() {
             };
             reader.readAsDataURL(file);
         } else {
-            // ファイルが選択されていない場合はデフォルト画像を表示
-            imagePreview.src = defaultImage;
+            // ファイルが選択されていない場合は現在登録されている車両画像を表示
+            imagePreview.src = imagePreview.src || defaultImage;
         }
     });
 });

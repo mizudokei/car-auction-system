@@ -2,18 +2,39 @@ const mysql = require('mysql2');
 const db = require('./db');
 
 // 車両情報を全件あるいは検索条件に基づいて取得するメソッド
-const getCars = (searchTerm, callback) => {
+const getCars = (searchTerm, manufacturerId, carYear, minMileage, maxMileage, carStatus, callback) => {
     const connection = db.connectDB();
     let sql = `
-        SELECT c.*, m.manufacturer_name 
-        FROM car_tbl c
-        JOIN manufacturer_tbl m ON c.manufacturer_id = m.manufacturer_id
+        SELECT car.*, manufacturer.manufacturer_name 
+        FROM car_tbl AS car
+        LEFT JOIN manufacturer_tbl AS manufacturer ON car.manufacturer_id = manufacturer.manufacturer_id
+        WHERE 1=1
     `;
-    let params = [];
+    const params = [];
 
     if (searchTerm) {
-        sql += ' WHERE c.car_type LIKE ?';
+        sql += ' AND car.car_type LIKE ?';
         params.push(`%${searchTerm}%`);
+    }
+    if (manufacturerId) {
+        sql += ' AND car.manufacturer_id = ?';
+        params.push(manufacturerId);
+    }
+    if (carYear) {
+        sql += ' AND car.car_year = ?';
+        params.push(carYear);
+    }
+    if (minMileage) {
+        sql += ' AND car.car_mileage >= ?';
+        params.push(minMileage);
+    }
+    if (maxMileage) {
+        sql += ' AND car.car_mileage <= ?';
+        params.push(maxMileage);
+    }
+    if (carStatus) {
+        sql += ' AND car.car_status = ?';
+        params.push(carStatus);
     }
 
     connection.query(sql, params, (err, results) => {
@@ -129,10 +150,28 @@ const deleteCarById = (car_id, callback) => {
     db.disconnectDB(connection);
 };
 
+// メーカー情報を取得するメソッド
+const getManufacturers = (callback) => {
+    const connection = db.connectDB();
+    const sql = 'SELECT manufacturer_id, manufacturer_name FROM manufacturer_tbl';
+
+    connection.query(sql, (err, results) => {
+        if (err) {
+            console.error('クエリ実行エラー：', err);
+            callback(err, null);
+        } else {
+            callback(null, results);
+        }
+    });
+
+    db.disconnectDB(connection);
+};
+
 module.exports = {
     getCars,
     getCarById,
     addCar,
     updateCarById,
-    deleteCarById
+    deleteCarById,
+    getManufacturers
 };

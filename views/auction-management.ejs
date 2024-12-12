@@ -6,36 +6,33 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><%= title %></title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css">
-    <!-- <style>#auction_status { display: none; }</style> -->
 </head>
 <body>
-    <%- include('partials/admin-header') %>
-    <main>
-        <h2>オークション開催</h2>
-        <form action="/createAuction" method="POST">
-            <div>
-                <label for="start_datetime">開始日時:</label>
-                <input type="datetime-local" id="start_datetime" name="start_datetime" required>
-            </div>
-            <div>
-                <label for="end_datetime">終了日時:</label>
-                <input type="datetime-local" id="end_datetime" name="end_datetime" required>
-            </div>
-            <!-- <div>
-                <select id="auction_status" name="auction_status" required>
-                    <option value="準備中">準備中</option>
-                </select>
-            </div> -->
-            <input type="hidden" name="auction_status" value="準備中">
-            <div>
-                <label for="employee_id">担当者ID:</label>
-                <input type="number" id="employee_id" name="employee_id" required>
-            </div>
-            <div>
-                <button type="submit">登録</button>
-            </div>
-        </form>
-    </main>
-    <%- include('partials/admin-footer') %>
+    <div class="d-flex">
+        <%- include('partials/admin-sidebar', { currentPath: '/auctionManagement' }) %>
+        <div class="container">
+            <main>
+                <h2>オークション開催</h2>
+                <form action="/createAuction" method="POST">
+                    <div>
+                        <label for="start_datetime">開始日時:</label>
+                        <input type="datetime-local" id="start_datetime" name="start_datetime" required>
+                    </div>
+                    <div>
+                        <label for="end_datetime">終了日時:</label>
+                        <input type="datetime-local" id="end_datetime" name="end_datetime" required>
+                    </div>
+                    <input type="hidden" name="auction_status" value="準備中">
+                    <div>
+                        <label for="employee_id">担当者ID:</label>
+                        <input type="number" id="employee_id" name="employee_id" required>
+                    </div>
+                    <div>
+                        <button type="submit">登録</button>
+                    </div>
+                </form>
+            </main>
+        </div>
+    </div>
 </body>
 </html>
