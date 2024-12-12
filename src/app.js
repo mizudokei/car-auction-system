@@ -392,7 +392,34 @@ app.post('/update-user', (req, res) => {
     });
 });
 
-app.get('/mypage', (req, res) => {
+app.get('/bid-history', (req, res) => {
+    if (!req.session.user) {
+        return res.redirect('/login'); // ログインページへ
+    }
+    // 空の配列を定義
+    const searchArray = [];
+
+    // オブジェクトを作成して配列に追加
+    searchArray.push({
+        auction_id: req.query.auction_id || null,
+        listing_id: req.query.listing_id || null,
+        bid_id: req.query.bid_id || null,
+        car_type: req.query.car_type || null,
+    });
+    // 空の配列を定義
+    const d_SearchArray = [];
+
+    // オブジェクトを作成して配列に追加
+    d_SearchArray.push({
+        d_auction_id: req.query.d_auction_id || null,
+        d_listing_id: req.query.d_listing_id || null,
+        d_bid_id: req.query.d_bid_id || null,
+        d_car_type: req.query.d_car_type || null,
+    });
+
+// 配列の内容をコンソールに出力
+console.log(searchArray);
+    
     const userId = req.session.user.user_id;
     mypage.getbit(userId, (err, bit) => {
         if (err) {
@@ -402,7 +429,13 @@ app.get('/mypage', (req, res) => {
             if (err) {
                 console.error(err);
             }
-            res.render('mypage', { user: userId, bit: bit, successfulbid: successfulbid, title: '入落札履歴' });
+            res.render('bid-history', { 
+                user: userId, 
+                bit: bit, 
+                successfulbid: successfulbid, 
+                searchArray: searchArray,
+                d_searchArray: d_SearchArray,
+                title: '入落札履歴' });
         })
     });
 });

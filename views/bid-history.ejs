@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="jp">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <title>履歴</title>
+</head>
+<body class="d-flex">
+    <%- include('partials/sidebar') %>
+    <div class="container flex-grow-1">
+        <div class="overflow-auto">
+            <h1 class="fw-bold">入札履歴</h1>
+            <table class="table table-bordered table-hover">
+                <thead class="table-light">
+                    <form action="/bid-history" method="get">
+                        <tr>
+                            <th><input style="width: 4em;" name="auction_id" type="number" value="<%= searchArray[0].auction_id %>"></th>
+                            <th><input style="width: 4em;" name="listing_id" type="number" value="<%= searchArray[0].listing_id %>"></th>
+                            <th><input style="width: 4em;" name="bid_id" type="number" value="<%= searchArray[0].bid_id %>"></th>
+                            <th>
+                                <select name="car_type">
+                                    <option value=""></option>
+                                    <% const uniqueCarTypes = new Set();
+                                    bit.forEach(item => { uniqueCarTypes.add(item.car_type );});%>
+                                    <% uniqueCarTypes.forEach(car_type => { %>
+                                        <option value="<%= car_type %>"><%= car_type %></option>
+                                    <% }) %>
+                                </select>
+                            </th>
+                            <th class=""></th>
+                            <th class=""></th>
+                            <th class=""></th>
+                            <th class=""></th>
+                            <th class=""><button class="btn btn-primary btn-sm w-100 bg-black rounded text-white">検索</button></th>
+                        </tr>
+                    </form>
+                    <tr>
+                        <th>オークションID</th>
+                        <th>リスティングID</th>
+                        <th>入札ID</th>
+                        <th>車種</th>
+                        <th>入札日時</th>
+                        <th>入札金額</th>
+                        <th>終了日時</th>
+                        <th>状態</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody class="">
+                    <% if (bit.forEach && bit.forEach.length > 0) { %>
+                        <% bit.forEach(item => { %>
+                            <% if(searchArray[0].auction_id == null || searchArray[0].auction_id == item.auction_id  ){ %><!-- auction_idの検索に利用 -->
+                            <% if(searchArray[0].listing_id == null || searchArray[0].listing_id == item.listing_id  ){ %><!-- listing_idの検索に利用 -->
+                            <% if(searchArray[0].bid_id == null || searchArray[0].bid_id == item.bid_id  ){ %><!-- bid_idの検索に利用 -->
+                            <% if(searchArray[0].car_type == null || searchArray[0].car_type == item.car_type  ){ %><!-- car_typeの検索に利用 -->
+                                <tr>
+                                    <td class=""><%= item.auction_id %></td>
+                                    <td class=""><%= item.listing_id %></td>
+                                    <td class=""><%= item.bid_id %></td>
+                                    <td class=""><%= item.car_type %></td>
+                                    <td class=""><%= item.bid_datetime %></td>
+                                    <td class=""><%= item.bid_amount %></td>
+                                    <td class=""><%= item.end_datetime %></td>
+                                    <td class=""><%= item.auction_status %></td>
+                                    <td class="">
+                                        <form action="/bid" method="get" class="text-center my-1">
+                                            <input type="hidden" name="listing_id" value="<%= item.listing_id %>">
+                                            <input type="hidden" name="end_datetime" value="<%= item.end_datetime %>">
+                                            <button class="btn btn-primary btn-sm">ページへ</button>
+                                        </form>
+                                    </td>
+                                </tr>
+                            <% }; %>
+                            <% }; %>
+                            <% }; %>
+                            <% }; %>
+                        <% }); %>
+                    <% } else { %>
+                        <tr>
+                            <td colspan="6">落札情報がありません</td>
+                        </tr>
+                    <% } %>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="overflow-auto mt-4">
+            <h1 class="fw-bold">落札履歴</h1>
+            <table class="table table-bordered table-hover">
+                <thead class="table-light">
+                    <form action="/bid-history" method="get">
+                        <tr>
+                            <th><input style="width: 4em;" name="d_auction_id" type="number" value="<%= d_searchArray[0].d_auction_id %>"></th>
+                            <th><input style="width: 4em;" name="d_listing_id" type="number" value="<%= d_searchArray[0].d_listing_id %>"></th>
+                            <th><input style="width: 4em;" name="d_bid_id" type="number" value="<%= d_searchArray[0].d_bid_id %>"></th>
+                            <th>
+                                <select name="d_car_type">
+                                    <option value=""></option>
+                                    <% const d_uniqueCarTypes = new Set();
+                                    bit.forEach(item => { d_uniqueCarTypes.add(item.car_type );});%>
+                                    <% d_uniqueCarTypes.forEach(car_type => { %>
+                                        <option value="<%= car_type %>"><%= car_type %></option>
+                                    <% }) %>
+                                </select>
+                            </th>
+                            <th class=""></th>
+                            <th class=""></th>
+                            <th class=""><button class="btn btn-primary btn-sm w-100 bg-black rounded text-white">検索</button></th>
+                        </tr>
+                    </form>
+                    <tr>
+                        <th>オークションID</th>
+                        <th>入札ID</th>
+                        <th>リスティングID</th>
+                        <th>車種</th>
+                        <th>落札金額</th>
+                        <th>落札日時</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <% if (successfulbid && successfulbid.length > 0) { %>
+                        <% successfulbid.forEach(item => { %>
+                            <% if(d_searchArray[0].d_auction_id == null || d_searchArray[0].d_auction_id == item.auction_id  ){ %><!-- auction_idの検索に利用 -->
+                            <% if(d_searchArray[0].d_listing_id == null || d_searchArray[0].d_listing_id == item.listing_id  ){ %><!-- listing_idの検索に利用 -->
+                            <% if(d_searchArray[0].d_bid_id == null || d_searchArray[0].d_bid_id == item.bid_id  ){ %><!-- bid_idの検索に利用 -->
+                                <% if(d_searchArray[0].d_car_type == null || d_searchArray[0].d_car_type == item.car_type  ){ %><!-- car_typeの検索に利用 -->
+                            <tr>
+                                <td><%= item.auction_id %></td>
+                                <td><%= item.bid_id %></td>
+                                <td><%= item.listing_id %></td>
+                                <td><%= item.car_type %></td>
+                                <td><%= item.successfulbid_amount %></td>
+                                <td><%= item.successfulbid_datetime %></td>
+                                <td class="">
+                                    <form action="/bid" method="get" class="text-center my-1">
+                                        <input type="hidden" name="listing_id" value="<%= item.listing_id %>">
+                                        <input type="hidden" name="end_datetime" value="<%= item.end_datetime %>">
+                                        <button class="btn btn-primary btn-sm">ページへ</button>
+                                    </form>
+                                </td>
+                            </tr>
+                        <% }; %>
+                        <% }; %>
+                        <% }; %>
+                        <% }; %>
+                        <% }); %>
+                    <% } else { %>
+                        <tr>
+                            <td colspan="6" class="text-center py-2">落札履歴がありません</td>
+                        </tr>
+                    <% } %>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
