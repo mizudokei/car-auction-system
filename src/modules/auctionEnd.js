@@ -3,8 +3,8 @@ const nodemailer = require('nodemailer'); //nodemailer(メール送信に使う�
 
 //------------------------------メール送信に使うメアドとパスワードの入力場所------------------------------
 mailservice = "gmail" //利用するメールサービス
-From_Email = "" //メールアドレス
-Pass       = "" //パスワード
+From_Email = "mizunotoki.halstudent@gmail.com" //メールアドレス
+Pass       = "roqkam-gesca1-bibwAp" //パスワード
 //テストではgmailとアプリパスワードを利用
 
 const getAuctionEnd = (callback) => {
@@ -196,7 +196,7 @@ const sendMail = (auction_id, listing_id, callback) => {
                 }
             });
         } else {
-             db.disconnectDB();
+            db.disconnectDB();
             return callback(new Error("指定された listing_id に対する落札情報が見つかりませんでした"));
         }
     });

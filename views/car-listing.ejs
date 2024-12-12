@@ -5,90 +5,119 @@
 		<title>出品登録</title>
 		<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css">
 		<script src="/js/showTab.js"></script>
+		<style>
+			.tab-content {
+				margin-top: 20px;
+			}
+			.table th, .table td {
+				vertical-align: middle;
+			}
+			.car-image {
+				width: 100px;
+				height: auto;
+			}
+		</style>
 	</head>
 	<body>
-		<%- include('partials/admin-header') %>
-		<main>
-			<div class="tabs">
-				<button class="tab-button" onclick="showTab('register')">
-					出品登録
-				</button>
-				<button class="tab-button" onclick="showTab('listed')">
-					出品登録済み
-				</button>
-			</div>
-			<div id="register" class="tab-content">
-				<h1>出品登録画面</h1>
-				<form id="carListingForm" method="POST" action="/car-listing/register">
-					<label for="auctionEvent">オークションイベントを選択:</label>
-					<select id="auctionEvent" name="auction_id" required>
-						<% if (events && events.length > 0) { %>
-							<% events.forEach(event => { %>
-								<option value="<%= event.auction_id %>">
-									<%= new Date(event.start_datetime).toLocaleString('ja-JP') %> -
-									<%= new Date(event.end_datetime).toLocaleString('ja-JP') %>
-								</option>
-							<% }); %>
-						<% } else { %>
-							<option disabled>オークションイベントがありません</option>
-						<% } %>
-					</select>
-					<h2>在庫車両リスト</h2>
-					<table border="1">
-						<thead>
-							<tr>
-								<th>車両ID</th>
-								<th>車両名</th>
-								<th>出品選択</th>
-								<th>開始価格</th>
-							</tr>
-						</thead>
-						<tbody>
-							<% cars.forEach(car => { %>
+		<div class="d-flex">
+			<%- include('partials/admin-sidebar', { currentPath: '/car-listing' }) %>
+			<main class="container">
+				<div class="tabs">
+					<button class="tab-button" onclick="showTab('register')">
+						出品登録
+					</button>
+					<button class="tab-button" onclick="showTab('listed')">
+						出品登録済み
+					</button>
+				</div>
+				<div id="register" class="tab-content">
+					<h1>出品登録画面</h1>
+					<form id="carListingForm" method="POST" action="/car-listing/register">
+						<label for="auctionEvent">オークションイベントを選択:</label>
+						<select id="auctionEvent" name="auction_id" required>
+							<% if (events && events.length > 0) { %>
+								<% events.forEach(event => { %>
+									<option value="<%= event.auction_id %>">
+										<%= new Date(event.start_datetime).toLocaleString('ja-JP') %> -
+										<%= new Date(event.end_datetime).toLocaleString('ja-JP') %>
+									</option>
+								<% }); %>
+							<% } else { %>
+								<option disabled>オークションイベントがありません</option>
+							<% } %>
+						</select>
+						<h2>在庫車両リスト</h2>
+						<table class="table table-bordered">
+							<thead>
 								<tr>
-									<td><%= car.car_id %></td>
-									<td><%= car.car_manufacturer %> <%= car.car_type %></td>
-									<td>
-										<input type="checkbox" name="selectedCars[]" value="<%= car.car_id %>" />
-									</td>
-									<td>
-										<input type="number" name="startingPrice_<%= car.car_id %>" min="1" />
-									</td>
+									<th>車両ID</th>
+									<th>車両名</th>
+									<th>車両画像</th>
+									<th>出品選択</th>
+									<th>開始価格</th>
 								</tr>
-							<% }); %>
-						</tbody>
-					</table>
-					<button type="submit">登録</button>
-				</form>
-			</div>
-			<div id="listed" class="tab-content" style="display: none">
-				<h2>出品登録済み車両リスト</h2>
-				<form id="stopListingForm" method="POST" action="/car-listing/stop">
-					<table border="1">
-						<thead>
-							<tr>
-								<th>車両ID</th>
-								<th>車両名</th>
-								<th>出品停止選択</th>
-							</tr>
-						</thead>
-						<tbody>
-							<% listedCars.forEach(car => { %>
+							</thead>
+							<tbody>
+								<% cars.forEach(car => { %>
+									<tr>
+										<td><%= car.car_id %></td>
+										<td><%= car.car_manufacturer %> <%= car.car_type %></td>
+										<td>
+											<% if (car.car_image) { %>
+												<img src="<%= car.car_image %>" alt="車両画像" class="car-image">
+											<% } else { %>
+												<p>画像なし</p>
+											<% } %>
+										</td>
+										<td>
+											<input type="checkbox" name="selectedCars[]" value="<%= car.car_id %>" />
+										</td>
+										<td>
+											<input type="number" name="startingPrice_<%= car.car_id %>" min="1" />
+										</td>
+									</tr>
+								<% }); %>
+							</tbody>
+						</table>
+						<button type="submit" class="btn btn-primary">登録</button>
+					</form>
+				</div>
+				<div id="listed" class="tab-content" style="display: none">
+					<h2>出品登録済み車両リスト</h2>
+					<form id="stopListingForm" method="POST" action="/car-listing/stop">
+						<table class="table table-bordered">
+							<thead>
 								<tr>
-									<td><%= car.car_id %></td>
-									<td><%= car.car_manufacturer %> <%= car.car_type %></td>
-									<td>
-										<input type="checkbox" name="stopCars[]" value="<%= car.car_id %>"
-											<%= car.auction_status === '開催中' ? 'disabled' : '' %> />
-									</td>
+									<th>車両ID</th>
+									<th>車両名</th>
+									<th>車両画像</th>
+									<th>出品停止選択</th>
 								</tr>
-							<% }); %>
-						</tbody>
-					</table>
-					<button type="submit">出品停止</button>
-				</form>
-			</div>
-		</main>
-		<%- include('partials/admin-footer') %>
+							</thead>
+							<tbody>
+								<% listedCars.forEach(car => { %>
+									<tr>
+										<td><%= car.car_id %></td>
+										<td><%= car.car_manufacturer %> <%= car.car_type %></td>
+										<td>
+											<% if (car.car_image) { %>
+												<img src="<%= car.car_image %>" alt="車両画像" class="car-image">
+											<% } else { %>
+												<p>画像なし</p>
+											<% } %>
+										</td>
+										<td>
+											<input type="checkbox" name="stopCars[]" value="<%= car.car_id %>"
+												<%= car.auction_status === '開催中' ? 'disabled' : '' %> />
+										</td>
+									</tr>
+								<% }); %>
+							</tbody>
+						</table>
+						<button type="submit" class="btn btn-danger">出品停止</button>
+					</form>
+				</div>
+			</main>
+		</div>
 	</body>
 </html>

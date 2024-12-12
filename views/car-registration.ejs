@@ -9,59 +9,59 @@
     <script src="/js/imagePreview.js"></script>
 </head>
 <body>
-    <%- include('partials/admin-header') %>
-    <main class="container">
-        <div class="car-registration-container">
-            <!-- 登録フォーム部分 -->
-            <div class="car-form-container">
-                <form action="/carRegistration" method="POST" enctype="multipart/form-data" class="registration-form">
-                    <!-- 車両画像アップロード -->
-                    <div class="form-group">
-                        <label for="car_image_upload">車両画像</label>
-                        <input type="file" id="car_image_upload" name="car_image" class="form-input">
-                        <img src="" alt="車両画像プレビュー" class="car-image-preview" style="max-width: 100%; height: auto; margin-top: 10px;">
-                    </div>
+    <div class="d-flex">
+        <%- include('partials/admin-sidebar', { currentPath: '/carRegistration' }) %>
+        <div class="container">
+            <main class="car-registration-container">
+                <div class="car-form-container">
+                    <form action="/carRegistration" method="POST" enctype="multipart/form-data" class="registration-form">
+                        <!-- 車両画像アップロード -->
+                        <div class="form-group">
+                            <label for="car_image_upload">車両画像</label>
+                            <input type="file" id="car_image_upload" name="car_image" class="form-input">
+                            <img src="" alt="車両画像プレビュー" class="car-image-preview" style="max-width: 100%; height: auto; margin-top: 10px;">
+                        </div>
 
-                    <!-- 車種 -->
-                    <div class="form-group">
-                        <label for="car_type">車種</label>
-                        <input type="text" id="car_type" name="car_type" class="form-input" required>
-                    </div>
+                        <!-- 車種 -->
+                        <div class="form-group">
+                            <label for="car_type">車種</label>
+                            <input type="text" id="car_type" name="car_type" class="form-input" required>
+                        </div>
 
-                    <!-- メーカー名 -->
-                    <div class="form-group">
-                        <label for="car_manufacturer">メーカー名</label>
-                        <select id="car_manufacturer" name="car_manufacturer" class="form-input" required>
-                            <% manufacturers.forEach(manufacturer => { %>
-                                <option value="<%= manufacturer.manufacturer_id %>"><%= manufacturer.manufacturer_name %></option>
-                            <% }) %>
-                        </select>
-                    </div>
+                        <!-- メーカー名 -->
+                        <div class="form-group">
+                            <label for="car_manufacturer">メーカー名</label>
+                            <select id="car_manufacturer" name="car_manufacturer" class="form-input" required>
+                                <% manufacturers.forEach(manufacturer => { %>
+                                    <option value="<%= manufacturer.manufacturer_id %>"><%= manufacturer.manufacturer_name %></option>
+                                <% }) %>
+                            </select>
+                        </div>
 
-                    <!-- 年式 -->
-                    <div class="form-group">
-                        <label for="car_year">年式</label>
-                        <input type="number" id="car_year" name="car_year" class="form-input" required>
-                    </div>
+                        <!-- 年式 -->
+                        <div class="form-group">
+                            <label for="car_year">年式</label>
+                            <input type="number" id="car_year" name="car_year" class="form-input" required>
+                        </div>
 
-                    <!-- 走行距離 -->
-                    <div class="form-group">
-                        <label for="car_mileage">走行距離</label>
-                        <input type="text" id="car_mileage" name="car_mileage" class="form-input" required>
-                    </div>
+                        <!-- 走行距離 -->
+                        <div class="form-group">
+                            <label for="car_mileage">走行距離</label>
+                            <input type="text" id="car_mileage" name="car_mileage" class="form-input" required>
+                        </div>
 
-                    <!-- 車体カラー -->
-                    <div class="form-group">
-                        <label for="car_color">車体カラー</label>
-                        <input type="text" id="car_color" name="car_color" class="form-input" required>
-                    </div>
+                        <!-- 車体カラー -->
+                        <div class="form-group">
+                            <label for="car_color">車体カラー</label>
+                            <input type="text" id="car_color" name="car_color" class="form-input" required>
+                        </div>
 
-                    <!-- 登録ボタン -->
-                    <button type="submit" class="submit-button">登録</button>
-                </form>
-            </div>
+                        <!-- 登録ボタン -->
+                        <button type="submit" class="submit-button">登録</button>
+                    </form>
+                </div>
+            </main>
         </div>
-    </main>
-    <%- include('partials/admin-footer') %>
+    </div>
 </body>
 </html>
