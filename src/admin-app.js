@@ -25,8 +25,14 @@ const initializeServer = () => {
         AuctionEnd.forEach(auction => {
             const endDate = new Date(auction.end_datetime);
             const currentDate = new Date();
-            const timeDiff = endDate - currentDate;
+            let timeDiff = endDate - currentDate;
             console.log(`オークションID: ${auction.auction_id}, 残り時間: ${timeDiff}`);
+
+            // timeDiff に最大値を設定
+            const maxTimeout = 2147483647; // 32ビット符号付き整数の最大値（約24.8日）
+            if (timeDiff > maxTimeout) {
+                timeDiff = maxTimeout;
+            }
 
             setTimeout(() => {
                 auctionEnd.endAuction(auction.auction_id, (err, results) => {//オークションを終了。終了したオークションのlisting_idを取得
@@ -58,6 +64,11 @@ const initializeServer = () => {
     });
 };
 initializeServer();
+function hourCycle() {
+    initializeServer();
+}
+// 一時間ごとにhourCycle 関数を実行
+setInterval(hourCycle, 3600000);
 
 // 車両画像アップロードの設定
 const storage = multer.diskStorage({
