@@ -3,91 +3,93 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
-    <title>Document</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <title>履歴</title>
 </head>
-<body>
-    <%- include('partials/header') %>
-    <div class="container mx-8 mx-auto">
-        <div class="overflow-x-auto">
-            <h1 class="font-bold">入札履歴</h1>
-            <table class="border-b border">
-                <thead class="border-black border block pr-4 bg-gray-200">
+<body class="d-flex">
+    <%- include('partials/sidebar') %>
+    <div class="container flex-grow-1">
+        <div class="overflow-auto">
+            <h1 class="fw-bold">入札履歴</h1>
+            <table class="table table-bordered table-hover">
+                <thead class="table-light">
                     <tr>
-                        <th class="border-black border px-1 w-28">オークションID</th>
-                        <th class="border-black border px-1 w-28">リスティングID</th>
-                        <th class="border-black border px-1 w-24">入札ID</th>
-                        <th class="border-black border px-1 w-24">車種</th>
-                        <th class="border-black border px-1 w-44">入札日時</th>
-                        <th class="border-black border px-1 w-24">入札金額</th>
-                        <th class="border-black border px-1 w-44">終了日時</th>
-                        <th class="border-black border px-1 w-12">状態</th>
-                        <th class="border-black border px-1 w-24"></th>
+                        <th>オークションID</th>
+                        <th>リスティングID</th>
+                        <th>入札ID</th>
+                        <th>車種</th>
+                        <th>入札日時</th>
+                        <th>入札金額</th>
+                        <th>終了日時</th>
+                        <th>状態</th>
+                        <th></th>
                     </tr>
                 </thead>
-                <tbody class="border-black border overflow-y-auto max-h-64 block">
-                    <% if (bit.forEach && bit.forEach.length > 0) { %>
+                <tbody>
+                    <% if (bit && bit.length > 0) { %>
                         <% bit.forEach(item => { %>
                             <tr>
-                                <td class="border-black border px-1 w-28"><%= item.auction_id %></td>
-                                <td class="border-black border px-1 w-28"><%= item.listing_id %></td>
-                                <td class="border-black border px-1 w-24"><%= item.bid_id %></td>
-                                <td class="border-black border px-1 w-24"><%= item.car_type %></td>
-                                <td class="border-black border px-1 w-44"><%= item.bid_datetime %></td>
-                                <td class="border-black border px-1 w-24"><%= item.bid_amount %></td>
-                                <td class="border-black border px-1 w-44"><%= item.end_datetime %></td>
-                                <td class="border-black border px-1 w-12"><%= item.auction_status %></td>
-                                <td class="border-black border px-1 w-24">
-                                    <form action="/bid" method="get" class="text-center my-1">
+                                <td><%= item.auction_id %></td>
+                                <td><%= item.listing_id %></td>
+                                <td><%= item.bid_id %></td>
+                                <td><%= item.car_type %></td>
+                                <td><%= item.bid_datetime %></td>
+                                <td><%= item.bid_amount %></td>
+                                <td><%= item.end_datetime %></td>
+                                <td><%= item.auction_status %></td>
+                                <td>
+                                    <form action="/bid" method="get" class="text-center">
                                         <input type="hidden" name="listing_id" value="<%= item.listing_id %>">
                                         <input type="hidden" name="end_datetime" value="<%= item.end_datetime %>">
-                                        <button class="btn btn-primary w-100 bg-blue-100 rounded px-4 py-1">ページへ</button>
+                                        <button class="btn btn-primary btn-sm">ページへ</button>
                                     </form>
                                 </td>
                             </tr>
                         <% }); %>
                     <% } else { %>
                         <tr>
-                            <td colspan="6">落札情報がありません</td>
+                            <td colspan="9" class="text-center py-2">入札履歴がありません</td>
                         </tr>
                     <% } %>
                 </tbody>
             </table>
         </div>
-        <div class="overflow-x-auto mt-1">
-            <h1 class="font-bold">落札履歴</h1>
-            <table class="border-b border">
-                <thead class="border-black border block pr-4 bg-gray-200">
+
+        <div class="overflow-auto mt-4">
+            <h1 class="fw-bold">落札履歴</h1>
+            <table class="table table-bordered table-hover">
+                <thead class="table-light">
                     <tr>
-                        <th class="border-black border px-1 w-24">オークションID</th>
-                        <th class="border-black border px-1 w-24">入札ID</th>
-                        <th class="border-black border px-1 w-24">リスティングID</th>
-                        <th class="border-black border px-1 w-24">車種</th>
-                        <th class="border-black border px-1 w-24">落札金額</th>
-                        <th class="border-black border px-1 w-44">落札日時</th>
+                        <th>オークションID</th>
+                        <th>入札ID</th>
+                        <th>リスティングID</th>
+                        <th>車種</th>
+                        <th>落札金額</th>
+                        <th>落札日時</th>
                     </tr>
                 </thead>
-                <tbody class="border-black border overflow-y-auto max-h-64 block">
+                <tbody>
                     <% if (successfulbid && successfulbid.length > 0) { %>
                         <% successfulbid.forEach(item => { %>
                             <tr>
-                                <td class="border-black border px-1 w-24"><%= item.auction_id %></td>
-                                <td class="border-black border px-1 w-24"><%= item.bid_id %></td>
-                                <td class="border-black border px-1 w-24"><%= item.listing_id %></td>
-                                <td class="border-black border px-1 w-24"><%= item.car_type %></td>
-                                <td class="border-black border px-1 w-24"><%= item.successfulbid_amount %></td>
-                                <td class="border-black border px-1 w-44"><%= item.successfulbid_datetime %></td>
+                                <td><%= item.auction_id %></td>
+                                <td><%= item.bid_id %></td>
+                                <td><%= item.listing_id %></td>
+                                <td><%= item.car_type %></td>
+                                <td><%= item.successfulbid_amount %></td>
+                                <td><%= item.successfulbid_datetime %></td>
                             </tr>
                         <% }); %>
                     <% } else { %>
                         <tr>
-                            <td colspan="6">落札情報がありません</td>
+                            <td colspan="6" class="text-center py-2">落札履歴がありません</td>
                         </tr>
                     <% } %>
                 </tbody>
             </table>
         </div>
     </div>
-    <%- include('partials/footer') %>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
