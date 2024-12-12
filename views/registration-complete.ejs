@@ -8,15 +8,18 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css">
 </head>
 <body>
-    <%- include('partials/admin-header') %>
-    <main>
-        <h2>登録完了</h2>
-        <p>オークションの登録が完了しました。</p>
-        <div class="mt-3">
-            <a href="/auctionManagement" class="btn btn-primary">戻る</a>
-            <a href="/car-listing" class="btn btn-secondary">出品登録画面へ</a>
+    <div class="d-flex">
+        <%- include('partials/admin-sidebar', { currentPath: '/auctionManagement' }) %>
+        <div class="container">
+            <main>
+                <h2>登録完了</h2>
+                <p>オークションの登録が完了しました。</p>
+                <div class="mt-3">
+                    <a href="/auctionManagement" class="btn btn-primary">戻る</a>
+                    <a href="/car-listing" class="btn btn-secondary">出品登録画面へ</a>
+                </div>
+            </main>
         </div>
-    </main>
-    <%- include('partials/admin-footer') %>
+    </div>
 </body>
 </html>

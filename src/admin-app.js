@@ -76,7 +76,8 @@ const storage = multer.diskStorage({
         cb(null, path.join(__dirname, '../resources/car-images'));
     },
     filename: (req, file, cb) => {
-        cb(null, `${Date.now()}_${file.originalname}`);
+        const formattedFileName = Buffer.from(file.originalname, 'utf-8').toString('utf-8');
+        cb(null, `${Date.now()}_${formattedFileName}`);
     }
 });
 const upload = multer({ storage: storage });
@@ -94,15 +95,46 @@ app.get('/', (req, res) => {
 
 // 車両管理画面
 app.get('/carManagement', (req, res) => {
-    const searchTerm = req.query.search || '';  // 検索キーワード（デフォルトは空文字）
+    const searchTerm = req.query.search || '';
+    const manufacturerId = req.query.manufacturer || '';
+    const carYear = req.query.car_year || '';
+    const minMileage = req.query.min_mileage || '';
+    const maxMileage = req.query.max_mileage || '';
+    const carStatus = req.query.car_status || '在庫あり'; // デフォルト値
+    const currentPage = parseInt(req.query.page) || 1;
+    const itemsPerPage = 10;
 
-    // 車両データの取得
-    carQueries.getCars(searchTerm, (err, cars) => {
+    manufacturerQueries.getManufacturers((err, manufacturers) => {
         if (err) {
-            res.status(500).send("エラーが発生しました");
-            return;
+            console.error("メーカーの取得エラー:", err);
+            return res.status(500).send("メーカーの取得に失敗しました");
         }
-        res.render('car-management', { title: '車両管理画面', cars });
+
+        carQueries.getCars(searchTerm, manufacturerId, carYear, minMileage, maxMileage, carStatus, (err, allCars) => {
+            if (err) {
+                res.status(500).send("エラーが発生しました");
+                return;
+            }
+
+            const totalCars = allCars.length;
+            const totalPages = Math.ceil(totalCars / itemsPerPage);
+            const offset = (currentPage - 1) * itemsPerPage;
+            const cars = allCars.slice(offset, offset + itemsPerPage);
+
+            res.render('car-management', { 
+                title: '車両管理画面', 
+                cars, 
+                manufacturers, 
+                searchTerm, 
+                manufacturerId, 
+                carYear, 
+                minMileage, 
+                maxMileage, 
+                carStatus, 
+                currentPage, 
+                totalPages 
+            });
+        });
     });
 });
 

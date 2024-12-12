@@ -50,101 +50,102 @@
     </script>
 </head>
 <body class="bg-light">
-    <%- include('partials/header') %>
-    <main class="container py-4">
-        <% if (carDetails) { %>
-        <div class="card mb-4">
-            <div class="card-body">
-                <div class="row">
-                    <div class="col-md-6">
-                        <img src="<%= carDetails.car_image %>" alt="<%= carDetails.car_type %>" class="img-fluid shadow">
-                    </div>
-                    <div class="col-md-6">
-                        <table class="table table-bordered">
-                            <tbody>
-                                <tr>
-                                    <th class="bg-dark text-white">車種</th>
-                                    <td><%= carDetails.car_type %></td>
-                                </tr>
-                                <tr>
-                                    <th class="bg-dark text-white">メーカー</th>
-                                    <td><%= carDetails.manufacturer_name %></td>
-                                </tr>
-                                <tr>
-                                    <th class="bg-dark text-white">年数</th>
-                                    <td><%= carDetails.car_year %>年</td>
-                                </tr>
-                                <tr>
-                                    <th class="bg-dark text-white">走行距離</th>
-                                    <td><%= carDetails.car_mileage %> km</td>
-                                </tr>
-                                <tr>
-                                    <th class="bg-dark text-white">色</th>
-                                    <td><%= carDetails.car_color %></td>
-                                </tr>
-                                <tr>
-                                    <th class="bg-dark text-white">現在価格</th>
-                                    <td><%= now_price %></td>
-                                </tr>
-                            </tbody>
-                        </table>
+    <div class="d-flex">
+        <%- include('partials/sidebar') %>
+        <div class="container py-4">
+            <% if (carDetails) { %>
+            <div class="card mb-4">
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <img src="<%= carDetails.car_image %>" alt="<%= carDetails.car_type %>" class="img-fluid shadow">
+                        </div>
+                        <div class="col-md-6">
+                            <table class="table table-bordered">
+                                <tbody>
+                                    <tr>
+                                        <th class="bg-dark text-white">車種</th>
+                                        <td><%= carDetails.car_type %></td>
+                                    </tr>
+                                    <tr>
+                                        <th class="bg-dark text-white">メーカー</th>
+                                        <td><%= carDetails.manufacturer_name %></td>
+                                    </tr>
+                                    <tr>
+                                        <th class="bg-dark text-white">年数</th>
+                                        <td><%= carDetails.car_year %>年</td>
+                                    </tr>
+                                    <tr>
+                                        <th class="bg-dark text-white">走行距離</th>
+                                        <td><%= carDetails.car_mileage %> km</td>
+                                    </tr>
+                                    <tr>
+                                        <th class="bg-dark text-white">色</th>
+                                        <td><%= carDetails.car_color %></td>
+                                    </tr>
+                                    <tr>
+                                        <th class="bg-dark text-white">現在価格</th>
+                                        <td><%= now_price %></td>
+                                    </tr>
+                                </tbody>
+                            </table>
                         <% if (time_remaining != "オークション終了") { %>
-                            <form action="/submit-bid" method="get" class="mt-4">
-                                <div class="mb-3">
-                                    <label for="bidAmount" class="form-label">入札額</label>
-                                    <div class="input-group">
-                                        <button type="button" class="btn btn-secondary" onclick="decrementValue('bidAmount', 10000)">-10000</button>
-                                        <input type="number" id="bidAmount" name="bidAmount" class="form-control text-center" min="<%= current_price %>" value="<%= current_price %>" required>
-                                        <button type="button" class="btn btn-secondary" onclick="incrementValue('bidAmount', 10000)">+10000</button>
+                                <form action="/submit-bid" method="get" class="mt-4">
+                                    <div class="mb-3">
+                                        <label for="bidAmount" class="form-label">入札額</label>
+                                        <div class="input-group">
+                                            <button type="button" class="btn btn-secondary" onclick="decrementValue('bidAmount', 10000)">-10000</button>
+                                            <input type="number" id="bidAmount" name="bidAmount" class="form-control text-center" min="<%= current_price %>" value="<%= current_price %>" required>
+                                            <button type="button" class="btn btn-secondary" onclick="incrementValue('bidAmount', 10000)">+10000</button>
+                                        </div>
                                     </div>
-                                </div>
-                                <input type="hidden" name="auction_id" value="<%= auction_id %>">
-                                <input type="hidden" name="car_id" value="<%= car_id %>">
-                                <input type="hidden" name="listing_id" value="<%= listing_id %>">
-                                <input type="hidden" name="end_datetime" value="<%= end_datetime %>">
-                                <div class="d-flex justify-content-between align-items-center">
-                                    <span id="timeRemaining" class="text-danger fw-bold"><%= time_remaining %></span>
-                                    <button type="submit" class="btn btn-primary">入札する</button>
-                                </div>
-                            </form>
+                                    <input type="hidden" name="auction_id" value="<%= auction_id %>">
+                                    <input type="hidden" name="car_id" value="<%= car_id %>">
+                                    <input type="hidden" name="listing_id" value="<%= listing_id %>">
+                                    <input type="hidden" name="end_datetime" value="<%= end_datetime %>">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <span id="timeRemaining" class="text-danger fw-bold"><%= time_remaining %></span>
+                                        <button type="submit" class="btn btn-primary">入札する</button>
+                                    </div>
+                                </form>
                         <% } %>
                         <% if (time_remaining = "オークション終了") { %>
                             <div class="d-flex justify-content-between align-items-center">
                                 <span id="timeRemaining" class="text-danger fw-bold"><%= time_remaining %></span>
                             </div>
                         <% } %>
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
 
-        <% if (bid_details && bid_details.length > 0) { %>
-        <h4>入札履歴</h4>
-        <table class="table table-striped">
-            <thead class="table-dark">
-                <tr>
-                    <th>入札者ID</th>
-                    <th>入札ID</th>
-                    <th>入札日</th>
-                    <th>入札価格</th>
-                </tr>
-            </thead>
-            <tbody>
-                <% bid_details.forEach(detail => { %>
-                <tr>
-                    <td><%= detail.user_id %></td>
-                    <td><%= detail.bid_id %></td>
-                    <td><%= detail.bid_datetime %></td>
-                    <td><%= detail.bid_amount %>円</td>
-                </tr>
-                <% }); %>
-            </tbody>
-        </table>
-        <% } %>
-        <% } else { %>
-        <p class="text-center text-muted">車両データが見つかりません。</p>
-        <% } %>
-    </main>
-    <%- include('partials/footer') %>
+            <% if (bid_details && bid_details.length > 0) { %>
+            <h4>入札履歴</h4>
+            <table class="table table-striped">
+                <thead class="table-dark">
+                    <tr>
+                        <th>入札者ID</th>
+                        <th>入札ID</th>
+                        <th>入札日</th>
+                        <th>入札価格</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <% bid_details.forEach(detail => { %>
+                    <tr>
+                        <td><%= detail.user_id %></td>
+                        <td><%= detail.bid_id %></td>
+                        <td><%= detail.bid_datetime %></td>
+                        <td><%= detail.bid_amount %>円</td>
+                    </tr>
+                    <% }); %>
+                </tbody>
+            </table>
+            <% } %>
+            <% } else { %>
+            <p class="text-center text-muted">車両データが見つかりません。</p>
+            <% } %>
+        </div>
+    </div>
 </body>
 </html>
