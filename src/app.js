@@ -33,7 +33,7 @@ const initializeServer = () => {
             console.log(`オークションID: ${auction.auction_id}, 残り時間: ${timeDiff}`);
 
             // timeDiff に最大値を設定
-            const maxTimeout = 2147483647; // 32ビット符号付き整数の最大値（約24.8日）
+            const maxTimeout = 2147483647; // 32ビット符号付き整数の最大値（2147483647ミリ秒、約24.8日）
             if (timeDiff > maxTimeout) {
                 timeDiff = maxTimeout;
             }
@@ -67,7 +67,9 @@ const initializeServer = () => {
         });
     });
 };
+//起動時に実行
 initializeServer();
+
 function hourCycle() {
     initializeServer();
 }
@@ -263,6 +265,22 @@ app.get('/mypage', (req, res) => {
     if (!req.session.user) {
         return res.redirect('/login'); // ログインページへ
     }
+    // 空の配列を定義
+    const searchArray = [];
+
+    // オブジェクトを作成して配列に追加
+    searchArray.push({
+        auction_id: req.query.auction_id || null,
+        listing_id: req.query.listing_id || null,
+        bid_id: req.query.bid_id || null,
+        car_type: req.query.car_type || null,
+    });
+
+// 配列の内容をコンソールに出力
+console.log(searchArray);
+
+
+    
     const userId = req.session.user.user_id;
     mypage.getbit(userId, (err, bit) => {
         if (err) {
@@ -272,7 +290,12 @@ app.get('/mypage', (req, res) => {
             if (err) {
                 console.error(err);
             }
-            res.render('mypage', { user: userId, bit: bit, successfulbid: successfulbid, title: 'マイページ' });
+            res.render('mypage', { 
+                user: userId, 
+                bit: bit, 
+                successfulbid: successfulbid, 
+                searchArray: searchArray,
+                title: 'マイページ' });
         })
     });
 });

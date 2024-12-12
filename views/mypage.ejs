@@ -7,12 +7,36 @@
     <title>Document</title>
 </head>
 <body>
+    <h1>test:<%= searchArray[0].auction_id %></h1>
     <%- include('partials/header') %>
     <div class="container mx-8 mx-auto">
         <div class="overflow-x-auto">
             <h1 class="font-bold">入札履歴</h1>
             <table class="border-b border">
                 <thead class="border-black border block pr-4 bg-gray-200">
+                    <form action="/mypage" method="get">
+                        <tr>
+                            <th class="border-black border px-1 w-28"><input class="w-24 text-center" name="auction_id" type="number" value="<%= searchArray[0].auction_id %>"></th>
+                            <th class="border-black border px-1 w-28"><input class="w-24 text-center" name="listing_id" type="number" value=""></th>
+                            <th class="border-black border px-1 w-24"><input class="w-20 text-center" name="bid_id" type="number" value=""></th>
+                            <th class="border-black border px-1 w-24">
+                                <label for="fruits"></label>
+                                <select class="w-20" name="car_type">
+                                    <option value="car_type"></option>
+                                    <% const uniqueCarTypes = new Set();
+                                    bit.forEach(item => { uniqueCarTypes.add(item.car_type );});%>
+                                    <% uniqueCarTypes.forEach(car_type => { %>
+                                        <option value="<%= car_type %>"><%= car_type %></option>
+                                    <% }) %>
+                                </select>
+                            </th>
+                            <th class="border-black border px-1 w-44"></th>
+                            <th class="border-black border px-1 w-24"></th>
+                            <th class="border-black border px-1 w-44"></th>
+                            <th class="border-black border px-1 w-12"></th>
+                            <th class="border-black border px-1 w-24"><button class="btn btn-primary w-100 bg-black rounded px-4 text-white">検索</button></th>
+                        </tr>
+                    </form>
                     <tr>
                         <th class="border-black border px-1 w-28">オークションID</th>
                         <th class="border-black border px-1 w-28">リスティングID</th>
@@ -28,23 +52,31 @@
                 <tbody class="border-black border overflow-y-auto max-h-64 block">
                     <% if (bit.forEach && bit.forEach.length > 0) { %>
                         <% bit.forEach(item => { %>
-                            <tr>
-                                <td class="border-black border px-1 w-28"><%= item.auction_id %></td>
-                                <td class="border-black border px-1 w-28"><%= item.listing_id %></td>
-                                <td class="border-black border px-1 w-24"><%= item.bid_id %></td>
-                                <td class="border-black border px-1 w-24"><%= item.car_type %></td>
-                                <td class="border-black border px-1 w-44"><%= item.bid_datetime %></td>
-                                <td class="border-black border px-1 w-24"><%= item.bid_amount %></td>
-                                <td class="border-black border px-1 w-44"><%= item.end_datetime %></td>
-                                <td class="border-black border px-1 w-12"><%= item.auction_status %></td>
-                                <td class="border-black border px-1 w-24">
-                                    <form action="/bid" method="get" class="text-center my-1">
-                                        <input type="hidden" name="listing_id" value="<%= item.listing_id %>">
-                                        <input type="hidden" name="end_datetime" value="<%= item.end_datetime %>">
-                                        <button class="btn btn-primary w-100 bg-blue-100 rounded px-4 py-1">ページへ</button>
-                                    </form>
-                                </td>
-                            </tr>
+                            <% if(searchArray[0].auction_id == null || searchArray[0].auction_id == item.auction_id  ){ %><!-- auction_idの検索に利用 -->
+                            <% if(searchArray[0].listing_id == null || searchArray[0].listing_id == item.listing_id  ){ %><!-- listing_idの検索に利用 -->
+                            <% if(searchArray[0].bid_id == null || searchArray[0].bid_id == item.bid_id  ){ %><!-- bid_idの検索に利用 -->
+                            <% if(searchArray[0].car_type == null || searchArray[0].car_type == item.car_type  ){ %><!-- car_typeの検索に利用 -->
+                                <tr>
+                                    <td class="border-black border px-1 w-28"><%= item.auction_id %></td>
+                                    <td class="border-black border px-1 w-28"><%= item.listing_id %></td>
+                                    <td class="border-black border px-1 w-24"><%= item.bid_id %></td>
+                                    <td class="border-black border px-1 w-24"><%= item.car_type %></td>
+                                    <td class="border-black border px-1 w-44"><%= item.bid_datetime %></td>
+                                    <td class="border-black border px-1 w-24"><%= item.bid_amount %></td>
+                                    <td class="border-black border px-1 w-44"><%= item.end_datetime %></td>
+                                    <td class="border-black border px-1 w-12"><%= item.auction_status %></td>
+                                    <td class="border-black border px-1 w-24">
+                                        <form action="/bid" method="get" class="text-center my-1">
+                                            <input type="hidden" name="listing_id" value="<%= item.listing_id %>">
+                                            <input type="hidden" name="end_datetime" value="<%= item.end_datetime %>">
+                                            <button class="btn btn-primary w-100 bg-blue-100 rounded px-4 py-1">ページへ</button>
+                                        </form>
+                                    </td>
+                                </tr>
+                            <% }; %>
+                            <% }; %>
+                            <% }; %>
+                            <% }; %>
                         <% }); %>
                     <% } else { %>
                         <tr>
@@ -59,12 +91,12 @@
             <table class="border-b border">
                 <thead class="border-black border block pr-4 bg-gray-200">
                     <tr>
-                        <th class="border-black border px-1 w-24">オークションID</th>
-                        <th class="border-black border px-1 w-24">入札ID</th>
-                        <th class="border-black border px-1 w-24">リスティングID</th>
-                        <th class="border-black border px-1 w-24">車種</th>
-                        <th class="border-black border px-1 w-24">落札金額</th>
-                        <th class="border-black border px-1 w-44">落札日時</th>
+                        <th class="border-black border w-24">オークションID</th>
+                        <th class="border-black border w-24">入札ID</th>
+                        <th class="border-black border w-24">リスティングID</th>
+                        <th class="border-black border w-24">車種</th>
+                        <th class="border-black border w-24">落札金額</th>
+                        <th class="border-black border w-44">落札日時</th>
                     </tr>
                 </thead>
                 <tbody class="border-black border overflow-y-auto max-h-64 block">
